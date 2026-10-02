@@ -1,5 +1,9 @@
 package com.devmate.project;
 
+import com.devmate.matching.MatchStatus;
+import com.devmate.matching.dto.RecommendationCard;
+import com.devmate.matching.dto.RecommendationResult;
+import com.devmate.matching.service.RecommendationService;
 import com.devmate.member.security.MemberPrincipal;
 import com.devmate.project.dto.ProjectView;
 import com.devmate.project.service.ProjectService;
@@ -37,10 +41,12 @@ class ProjectControllerTest {
     private MockMvc mockMvc;
     private ProjectService projectService;
     private LocalValidatorFactoryBean validator;
+    private RecommendationService recommendationService;
 
     @BeforeEach
     void setUp() {
         projectService = mock(ProjectService.class);
+        recommendationService = mock(RecommendationService.class);
 
         validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
@@ -68,7 +74,7 @@ class ProjectControllerTest {
         };
 
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new ProjectController(projectService))
+                .standaloneSetup(new ProjectController(projectService, recommendationService))
                 .setValidator(validator)
                 .setCustomArgumentResolvers(
                         new AuthenticationPrincipalArgumentResolver()
@@ -91,28 +97,48 @@ class ProjectControllerTest {
     }
 
     @Test
-    @DisplayName("페이지 번호가 없으면 첫 페이지를 조회한다")
+    @DisplayName("기본 요청은 로그인 회원의 PASS 첫 페이지를 조회한다")
     void defaultPage() throws Exception {
-        Page<ProjectView> result = Page.empty();
-        when(projectService.getProjects(0)).thenReturn(result);
+        Page<RecommendationCard> page = Page.empty();
+
+        when(recommendationService.getRecommendations(
+                1L, MatchStatus.PASS, 0
+        )).thenReturn(
+                new RecommendationResult(page, MatchStatus.PASS, false)
+        );
 
         mockMvc.perform(get("/projects"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("project/list"))
-                .andExpect(model().attribute("projectPage", result));
+                .andExpect(model().attribute("projectPage", page))
+                .andExpect(model().attribute("selectedStatus", MatchStatus.PASS))
+                .andExpect(model().attribute("profileRequired", false));
 
-        verify(projectService).getProjects(0);
+        verify(recommendationService)
+                .getRecommendations(1L, MatchStatus.PASS, 0);
+        verifyNoInteractions(projectService);
     }
 
     @Test
-    @DisplayName("요청한 페이지 번호로 목록을 조회한다")
+    @DisplayName("요청한 상태와 페이지 번호로 추천 목록을 조회한다")
     void requestedPage() throws Exception {
-        when(projectService.getProjects(2)).thenReturn(Page.empty());
+        Page<RecommendationCard> page = Page.empty();
 
-        mockMvc.perform(get("/projects").param("page", "2"))
-                .andExpect(status().isOk());
+        when(recommendationService.getRecommendations(
+                1L, MatchStatus.FAIL, 2
+        )).thenReturn(
+                new RecommendationResult(page, MatchStatus.FAIL, false)
+        );
 
-        verify(projectService).getProjects(2);
+        mockMvc.perform(get("/projects")
+                        .param("status", "FAIL")
+                        .param("page", "2"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("projectPage", page))
+                .andExpect(model().attribute("selectedStatus", MatchStatus.FAIL));
+
+        verify(recommendationService)
+                .getRecommendations(1L, MatchStatus.FAIL, 2);
     }
 
     @Test
@@ -125,7 +151,7 @@ class ProjectControllerTest {
             }
         }
 
-        verifyNoInteractions(projectService);
+        verifyNoInteractions(projectService, recommendationService);
     }
 
     @Test
@@ -275,6 +301,74 @@ class ProjectControllerTest {
                 .andExpect(model().attribute("projectPage", result));
 
         verify(projectService).getMyProjects(1L, 0);
+    }
+
+    @Test
+    @DisplayName("프로필이 없으면 빈 목록과 프로필 작성 안내를 전달한다")
+    void profileRequired() throws Exception {
+        Page<RecommendationCard> page = Page.empty();
+
+        when(recommendationService.getRecommendations(
+                1L, MatchStatus.PASS, 0
+        )).thenReturn(
+                new RecommendationResult(page, MatchStatus.PASS, true)
+        );
+
+        mockMvc.perform(get("/projects"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("project/list"))
+                .andExpect(model().attribute("projectPage", page))
+                .andExpect(model().attribute("profileRequired", true));
+    }
+
+    @Test
+    @DisplayName("UNKNOWN 탭을 조회할 수 있다")
+    void unknownStatus() throws Exception {
+        Page<RecommendationCard> page = Page.empty();
+
+        when(recommendationService.getRecommendations(
+                1L, MatchStatus.UNKNOWN, 0
+        )).thenReturn(
+                new RecommendationResult(page, MatchStatus.UNKNOWN, false)
+        );
+
+        mockMvc.perform(get("/projects")
+                        .param("status", "UNKNOWN"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("selectedStatus", MatchStatus.UNKNOWN))
+                .andExpect(model().attribute("projectPage", page));
+
+        verify(recommendationService)
+                .getRecommendations(1L, MatchStatus.UNKNOWN, 0);
+    }
+
+    @Test
+    @DisplayName("정의되지 않은 추천 상태는 400으로 처리한다")
+    void invalidRecommendationStatus() throws Exception {
+        mockMvc.perform(get("/projects")
+                        .param("status", "HELLO"))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(projectService, recommendationService);
+    }
+
+    @Test
+    @DisplayName("다른 회원 ID를 보내도 로그인한 회원 기준으로 추천한다")
+    void recommendationUsesAuthenticatedMember() throws Exception {
+        when(recommendationService.getRecommendations(
+                1L, MatchStatus.PASS, 0
+        )).thenReturn(
+                new RecommendationResult(Page.empty(), MatchStatus.PASS, false)
+        );
+
+        mockMvc.perform(get("/projects")
+                        .param("memberId", "999"))
+                .andExpect(status().isOk());
+
+        verify(recommendationService)
+                .getRecommendations(1L, MatchStatus.PASS, 0);
+        verifyNoMoreInteractions(recommendationService);
+        verifyNoInteractions(projectService);
     }
 
     private MockHttpServletRequestBuilder validRequest() {

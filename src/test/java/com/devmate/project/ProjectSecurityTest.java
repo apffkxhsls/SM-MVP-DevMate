@@ -1,5 +1,6 @@
 package com.devmate.project;
 
+import com.devmate.matching.service.RecommendationService;
 import com.devmate.member.security.MemberPrincipal;
 import com.devmate.project.service.ProjectService;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +34,9 @@ class ProjectSecurityTest {
     @MockitoBean
     private ProjectService projectService;
 
+    @MockitoBean
+    private RecommendationService recommendationService;
+
     @Test
     @DisplayName("비로그인 사용자는 모집글 관련 화면에 접근할 수 없다")
     void anonymousPageAccess() throws Exception {
@@ -47,7 +51,7 @@ class ProjectSecurityTest {
                     .andExpect(redirectedUrl("/login"));
         }
 
-        verifyNoInteractions(projectService);
+        verifyNoInteractions(projectService, recommendationService);
     }
 
     @Test
@@ -57,7 +61,7 @@ class ProjectSecurityTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"));
 
-        verifyNoInteractions(projectService);
+        verifyNoInteractions(projectService, recommendationService);
     }
 
     @Test
@@ -70,7 +74,7 @@ class ProjectSecurityTest {
         mockMvc.perform(post("/projects").with(user(principal)))
                 .andExpect(status().isForbidden());
 
-        verifyNoInteractions(projectService);
+        verifyNoInteractions(projectService, recommendationService);
     }
 
     @Test
@@ -85,6 +89,19 @@ class ProjectSecurityTest {
                         .with(csrf().useInvalidToken()))
                 .andExpect(status().isForbidden());
 
-        verifyNoInteractions(projectService);
+        verifyNoInteractions(projectService, recommendationService);
+    }
+
+    @Test
+    @DisplayName("비로그인 사용자는 모든 추천 탭에 접근할 수 없다")
+    void anonymousRecommendationTabs() throws Exception {
+        for (String matchStatus : new String[]{"PASS", "FAIL", "UNKNOWN"}) {
+            mockMvc.perform(get("/projects")
+                            .param("status", matchStatus))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/login"));
+        }
+
+        verifyNoInteractions(projectService, recommendationService);
     }
 }

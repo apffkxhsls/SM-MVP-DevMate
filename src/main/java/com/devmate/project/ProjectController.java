@@ -1,5 +1,8 @@
 package com.devmate.project;
 
+import com.devmate.matching.MatchStatus;
+import com.devmate.matching.dto.RecommendationResult;
+import com.devmate.matching.service.RecommendationService;
 import com.devmate.member.security.MemberPrincipal;
 import com.devmate.project.service.ProjectService;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,27 +20,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final RecommendationService recommendationService;
 
-    public ProjectController(ProjectService projectService) {
-        this.projectService = projectService;
-    }
-
-    /**
-     * 모집글 목록을 최신순으로 조회한다.
-     */
-    @GetMapping("/projects")
-    public String list(
-            @RequestParam(defaultValue = "0") int page,
-            Model model
+    public ProjectController(
+            ProjectService projectService,
+            RecommendationService recommendationService
     ) {
-        validatePage(page);
-
-        model.addAttribute(
-                "projectPage",
-                projectService.getProjects(page)
-        );
-
-        return "project/list";
+        this.projectService = projectService;
+        this.recommendationService = recommendationService;
     }
 
     /**
@@ -76,7 +66,9 @@ public class ProjectController {
         return "redirect:/projects/" + projectId;
     }
 
-    /** 모집글 상세 정보를 조회한다. */
+    /**
+     * 모집글 상세 정보를 조회한다.
+     */
     @GetMapping("/projects/{projectId}")
     public String detail(
             @PathVariable Long projectId,
@@ -86,7 +78,7 @@ public class ProjectController {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "모집글 ID는 양수여야 합니다."
-                    );
+            );
         }
 
         model.addAttribute(
@@ -97,7 +89,9 @@ public class ProjectController {
         return "project/detail";
     }
 
-    /** 로그인한 회원이 작성한 모집글만 조회한다. */
+    /**
+     * 로그인한 회원이 작성한 모집글만 조회한다.
+     */
     @GetMapping("/my/projects")
     public String myProjects(
             @AuthenticationPrincipal MemberPrincipal principal,
@@ -114,7 +108,35 @@ public class ProjectController {
         return "project/my-list";
     }
 
-    /** 이 컨트롤러에서 조회 대상이 없으면 404로 처리한다. */
+    /**
+     * 로그인한 회원의 조건에 맞춰 모집글을 조회한다.
+     */
+    @GetMapping("/projects")
+    public String list(
+            @AuthenticationPrincipal MemberPrincipal memberPrincipal,
+            @RequestParam(defaultValue = "PASS") MatchStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            Model model
+    ) {
+        validatePage(page);
+
+        RecommendationResult result =
+                recommendationService.getRecommendations(
+                        memberPrincipal.getMemberId(),
+                        status,
+                        page
+                );
+
+        model.addAttribute("projectPage", result.projectPage());
+        model.addAttribute("selectedStatus", result.selectedStatus());
+        model.addAttribute("profileRequired", result.profileRequired());
+
+        return "project/list";
+    }
+
+    /**
+     * 이 컨트롤러에서 조회 대상이 없으면 404로 처리한다.
+     */
     @ExceptionHandler(EntityNotFoundException.class)
     public void handleNotFound(
             EntityNotFoundException exception,

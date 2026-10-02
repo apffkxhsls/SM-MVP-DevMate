@@ -2,6 +2,7 @@ package com.devmate.member;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.util.Locale;
@@ -15,6 +16,10 @@ public class SignupForm {
 
     @NotBlank(message = "비밀번호를 입력해주세요.")
     @Size(min = 8, max = 20, message = "비밀번호는 8~20자로 입력해주세요.")
+    @Pattern(
+            regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9])[\\s\\S]*$",
+            message = "영문, 숫자, 특수문자를 포함해서 비밀번호를 설정해주세요."
+    )
     private String password;
 
     @NotBlank(message = "이름을 입력해주세요.")
