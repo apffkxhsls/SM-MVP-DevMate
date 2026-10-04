@@ -2,6 +2,7 @@ package com.devmate.application.service;
 
 import com.devmate.application.ApplicationStatus;
 import com.devmate.application.ProjectApplication;
+import com.devmate.application.dto.ApplicationView;
 import com.devmate.application.exception.ApplicationConflictException;
 import com.devmate.application.repository.ApplicationRepository;
 import com.devmate.matching.MatchResult;
@@ -14,8 +15,12 @@ import com.devmate.profile.repository.ProfileRepository;
 import com.devmate.project.Project;
 import com.devmate.project.repository.ProjectRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -168,6 +173,57 @@ public class ApplicationService {
         application.reject(LocalDateTime.now(KOREA_ZONE));
     }
 
+    /**
+     * 로그인한 회원 본인의 지원 목록을 조회한다.
+     * applicantId는 인증 정보에서 가져온다.
+     */
+    public Page<ApplicationView> getMyApplications(
+            @NotNull @Positive Long applicantId,
+            @Min(0) int page
+    ) {
+        if (!memberRepository.existsById(applicantId)) {
+            throw new EntityNotFoundException("회원을 찾을 수 없습니다.");
+        }
+
+        return applicationRepository.findByApplicant_Id(
+                applicantId,
+                applicationPageRequest(page)
+        ).map(ApplicationView::from);
+    }
+
+    /**
+     * 모집글 작성자가 해당 모집글의 지원자 목록을 조회한다.
+     * authorId는 인증 정보에서 가져온다.
+     */
+    public Page<ApplicationView> getProjectApplications(
+            @NotNull @Positive Long projectId,
+            @NotNull @Positive Long authorId,
+            @Min(0) int page
+    ) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("모집글을 찾을 수 없습니다.")
+                );
+
+        validateAuthor(project, authorId);
+
+        return applicationRepository.findByProject_Id(
+                projectId,
+                applicationPageRequest(page)
+        ).map(ApplicationView::from);
+    }
+
+    private PageRequest applicationPageRequest(int page) {
+        return PageRequest.of(
+                page,
+                10,
+                Sort.by(
+                        Sort.Order.desc("createdAt"),
+                        Sort.Order.desc("id")
+                )
+        );
+    }
+
     /** 모집글을 잠근 뒤 지원 엔티티를 읽도록 순서를 통일한다. */
     private Project lockProjectForApplication(Long applicationId) {
         Long projectId = applicationRepository
@@ -192,7 +248,7 @@ public class ApplicationService {
     private void validateAuthor(Project project, Long authorId) {
         if (!project.getAuthor().getId().equals(authorId)) {
             throw new AccessDeniedException(
-                    "모집글 작성자만 지원을 처리할 수 있습니다."
+                    "모집글 작성자만 지원 내역을 조회하거나 처리할 수 있습니다."
             );
         }
     }

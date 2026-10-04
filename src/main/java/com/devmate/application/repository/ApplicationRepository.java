@@ -4,6 +4,7 @@ import com.devmate.application.ApplicationStatus;
 import com.devmate.application.ProjectApplication;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,12 +22,15 @@ public interface ApplicationRepository
     );
 
     /** 본인의 지원 목록을 조회한다. */
+    @EntityGraph(attributePaths = {"project", "applicant"})
     Page<ProjectApplication> findByApplicant_Id(
             Long applicantId,
             Pageable pageable
     );
 
+
     /** 특정 모집글의 지원 목록을 조회한다. */
+    @EntityGraph(attributePaths = {"project", "applicant"})
     Page<ProjectApplication> findByProject_Id(
             Long projectId,
             Pageable pageable
