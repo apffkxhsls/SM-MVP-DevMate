@@ -137,7 +137,7 @@ public class ApplicationService {
             );
         }
 
-        ProjectApplication application = findApplication(applicationId);
+        ProjectApplication application = findApplicationForUpdate(applicationId);
         validatePending(application);
 
         application.accept(now);
@@ -167,7 +167,7 @@ public class ApplicationService {
 
         validateAuthor(project, authorId);
 
-        ProjectApplication application = findApplication(applicationId);
+        ProjectApplication application = findApplicationForUpdate(applicationId);
         validatePending(application);
 
         application.reject(LocalDateTime.now(KOREA_ZONE));
@@ -214,27 +214,30 @@ public class ApplicationService {
     }
 
     /**
-     * 지원에 연결된 모집글 ID를 조회한다.
-     * 해당 모집글 작성자만 조회할 수 있다.
+     * 이동할 모집글 ID를 확인한다.
+     * 상태 변경 전에 엔티티를 미리 로딩하지 않도록 ID만 조회한다.
      */
     public Long getProjectIdForAuthor(
             @NotNull @Positive Long applicationId,
             @NotNull @Positive Long authorId
     ) {
-        Long projectId = applicationRepository
-                .findProjectIdByApplicationId(applicationId)
+        Long actualAuthorId = applicationRepository
+                .findAuthorIdByApplicationId(applicationId)
                 .orElseThrow(() ->
                         new EntityNotFoundException("지원 내역을 찾을 수 없습니다.")
                 );
 
-        Project project = projectRepository.findById(projectId)
+        if (!actualAuthorId.equals(authorId)) {
+            throw new AccessDeniedException(
+                    "모집글 작성자만 지원 내역을 조회하거나 처리할 수 있습니다."
+            );
+        }
+
+        return applicationRepository
+                .findProjectIdByApplicationId(applicationId)
                 .orElseThrow(() ->
-                        new EntityNotFoundException("모집글을 찾을 수 없습니다.")
+                        new EntityNotFoundException("지원 내역을 찾을 수 없습니다.")
                 );
-
-        validateAuthor(project, authorId);
-
-        return projectId;
     }
 
     private PageRequest applicationPageRequest(int page) {
@@ -262,8 +265,8 @@ public class ApplicationService {
                 );
     }
 
-    private ProjectApplication findApplication(Long applicationId) {
-        return applicationRepository.findById(applicationId)
+    private ProjectApplication findApplicationForUpdate(Long applicationId) {
+        return applicationRepository.findByIdForUpdate(applicationId)
                 .orElseThrow(() ->
                         new EntityNotFoundException("지원 내역을 찾을 수 없습니다.")
                 );
