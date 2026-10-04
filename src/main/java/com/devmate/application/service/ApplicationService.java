@@ -18,6 +18,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -113,7 +114,14 @@ public class ApplicationService {
         ProjectApplication application =
                 new ProjectApplication(project, applicant);
 
-        return applicationRepository.saveAndFlush(application).getId();
+        try {
+            return applicationRepository.saveAndFlush(application).getId();
+        } catch (DataIntegrityViolationException exception) {
+            if (isDuplicateApplication(exception)) {
+                throw new ApplicationConflictException("이미 지원한 모집글입니다.");
+            }
+            throw exception;
+        }
     }
 
     /**
@@ -286,5 +294,38 @@ public class ApplicationService {
                     "이미 처리된 지원입니다."
             );
         }
+    }
+
+    private boolean isDuplicateApplication(
+            DataIntegrityViolationException exception
+    ) {
+        Throwable cause = exception;
+
+        while (cause != null) {
+            if (cause instanceof
+                    org.hibernate.exception.ConstraintViolationException violation) {
+
+                String constraintName = violation.getConstraintName();
+
+                if (constraintName == null) {
+                    return false;
+                }
+
+                // MySQL에서 table.constraint 형태로 반환되는 경우도 처리한다.
+                String normalized = constraintName
+                        .replace("`", "")
+                        .replace("\"", "");
+
+                int separator = normalized.lastIndexOf('.');
+                String simpleName = normalized.substring(separator + 1);
+
+                return "uk_application_project_applicant"
+                        .equalsIgnoreCase(simpleName);
+            }
+
+            cause = cause.getCause();
+        }
+
+        return false;
     }
 }
