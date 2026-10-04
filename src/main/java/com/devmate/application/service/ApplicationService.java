@@ -213,6 +213,30 @@ public class ApplicationService {
         ).map(ApplicationView::from);
     }
 
+    /**
+     * 지원에 연결된 모집글 ID를 조회한다.
+     * 해당 모집글 작성자만 조회할 수 있다.
+     */
+    public Long getProjectIdForAuthor(
+            @NotNull @Positive Long applicationId,
+            @NotNull @Positive Long authorId
+    ) {
+        Long projectId = applicationRepository
+                .findProjectIdByApplicationId(applicationId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("지원 내역을 찾을 수 없습니다.")
+                );
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("모집글을 찾을 수 없습니다.")
+                );
+
+        validateAuthor(project, authorId);
+
+        return projectId;
+    }
+
     private PageRequest applicationPageRequest(int page) {
         return PageRequest.of(
                 page,

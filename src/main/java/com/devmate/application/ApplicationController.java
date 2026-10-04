@@ -108,6 +108,74 @@ public class ApplicationController {
     }
 
     /**
+     * 모집글 작성자가 지원자를 수락한다.
+     */
+    @PostMapping("/applications/{applicationId}/accept")
+    public String accept(
+            @PathVariable("applicationId") Long applicationId,
+            @AuthenticationPrincipal MemberPrincipal principal,
+            RedirectAttributes redirectAttributes
+    ) {
+        validateId(applicationId);
+
+        Long authorId = principal.getMemberId();
+        Long projectId = applicationService.getProjectIdForAuthor(
+                applicationId,
+                authorId
+        );
+
+        try {
+            applicationService.accept(applicationId, authorId);
+
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "지원자를 수락하고 모집을 마감했습니다."
+            );
+        } catch (ApplicationConflictException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    exception.getMessage()
+            );
+        }
+
+        return "redirect:/projects/" + projectId + "/applications";
+    }
+
+    /**
+     * 모집글 작성자가 대기 중인 지원을 거절한다.
+     */
+    @PostMapping("/applications/{applicationId}/reject")
+    public String reject(
+            @PathVariable("applicationId") Long applicationId,
+            @AuthenticationPrincipal MemberPrincipal principal,
+            RedirectAttributes redirectAttributes
+    ) {
+        validateId(applicationId);
+
+        Long authorId = principal.getMemberId();
+        Long projectId = applicationService.getProjectIdForAuthor(
+                applicationId,
+                authorId
+        );
+
+        try {
+            applicationService.reject(applicationId, authorId);
+
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "지원을 거절했습니다."
+            );
+        } catch (ApplicationConflictException exception) {
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    exception.getMessage()
+            );
+        }
+
+        return "redirect:/projects/" + projectId + "/applications";
+    }
+
+    /**
      * 조회 대상이 없으면 404로 처리한다.
      */
     @ExceptionHandler(EntityNotFoundException.class)
