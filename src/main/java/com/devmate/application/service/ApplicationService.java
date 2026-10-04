@@ -1,5 +1,6 @@
 package com.devmate.application.service;
 
+import com.devmate.application.ApplicationStatus;
 import com.devmate.application.ProjectApplication;
 import com.devmate.application.exception.ApplicationConflictException;
 import com.devmate.application.repository.ApplicationRepository;
@@ -15,6 +16,7 @@ import com.devmate.project.repository.ProjectRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -107,5 +109,99 @@ public class ApplicationService {
                 new ProjectApplication(project, applicant);
 
         return applicationRepository.saveAndFlush(application).getId();
+    }
+
+    /**
+     * 지원자를 수락하고 모집을 마감한다.
+     * 나머지 대기 지원은 함께 거절한다.
+     */
+    @Transactional
+    public void accept(
+            @NotNull @Positive Long applicationId,
+            @NotNull @Positive Long authorId
+    ) {
+        Project project = lockProjectForApplication(applicationId);
+
+        validateAuthor(project, authorId);
+
+        LocalDateTime now = LocalDateTime.now(KOREA_ZONE);
+
+        if (!project.isRecruiting(now)) {
+            throw new ApplicationConflictException(
+                    "모집이 마감되어 지원자를 수락할 수 없습니다."
+            );
+        }
+
+        ProjectApplication application = findApplication(applicationId);
+        validatePending(application);
+
+        application.accept(now);
+        project.close();
+
+        applicationRepository.findByProject_IdAndStatus(
+                project.getId(),
+                ApplicationStatus.PENDING
+        ).forEach(pending -> {
+            // 조회 전 flush 여부와 관계없이 수락한 지원은 제외한다.
+            if (!pending.getId().equals(applicationId)) {
+                pending.reject(now);
+            }
+        });
+    }
+
+    /**
+     * 대기 중인 지원을 거절한다.
+     * 모집 기한이 지나도 남아 있는 대기 지원은 거절할 수 있다.
+     */
+    @Transactional
+    public void reject(
+            @NotNull @Positive Long applicationId,
+            @NotNull @Positive Long authorId
+    ) {
+        Project project = lockProjectForApplication(applicationId);
+
+        validateAuthor(project, authorId);
+
+        ProjectApplication application = findApplication(applicationId);
+        validatePending(application);
+
+        application.reject(LocalDateTime.now(KOREA_ZONE));
+    }
+
+    /** 모집글을 잠근 뒤 지원 엔티티를 읽도록 순서를 통일한다. */
+    private Project lockProjectForApplication(Long applicationId) {
+        Long projectId = applicationRepository
+                .findProjectIdByApplicationId(applicationId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("지원 내역을 찾을 수 없습니다.")
+                );
+
+        return projectRepository.findByIdForUpdate(projectId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("모집글을 찾을 수 없습니다.")
+                );
+    }
+
+    private ProjectApplication findApplication(Long applicationId) {
+        return applicationRepository.findById(applicationId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("지원 내역을 찾을 수 없습니다.")
+                );
+    }
+
+    private void validateAuthor(Project project, Long authorId) {
+        if (!project.getAuthor().getId().equals(authorId)) {
+            throw new AccessDeniedException(
+                    "모집글 작성자만 지원을 처리할 수 있습니다."
+            );
+        }
+    }
+
+    private void validatePending(ProjectApplication application) {
+        if (application.getStatus() != ApplicationStatus.PENDING) {
+            throw new ApplicationConflictException(
+                    "이미 처리된 지원입니다."
+            );
+        }
     }
 }
