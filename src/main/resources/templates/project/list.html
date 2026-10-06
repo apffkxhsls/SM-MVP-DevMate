@@ -54,6 +54,11 @@
 </div>
 
 <div class="project-list">
+    <!-- 결과 없을 때 안내 메시지 -->
+    <p th:if="${projectPage.totalElements == 0}" class="empty-state">
+        해당 조건의 프로젝트가 없습니다.
+    </p>  
+    
     <!-- th:each: projectPage.content 목록에서 카드 하나씩 꺼내 반복 -->
     <div class="project-card" th:each="card : ${projectPage.content}">
         <h2 th:text="${card.title}">프로젝트 제목</h2>
@@ -106,23 +111,9 @@
     </div>
 </div>
 
-<div class="project-list">
-    <!-- 결과 없을 때 안내 메시지 -->
-    <p th:if="${projectPage.totalElements == 0}" class="empty-state">
-        해당 조건의 프로젝트가 없습니다.
-    </p>
-
-    <div class="project-card" th:each="card : ${projectPage.content}">
-        ...
-    </div>
-</div>
-
-
 <!-- 페이지네이션 -->
-<nav class="pagination" aria-label="페이지 이동">
-    
-    <!-- 페이지 개수 1개 인 경우 페이지네이션 숨김 -->
-    <nav class="pagination" th:if="${projectPage.totalPages > 1}" aria-label="페이지 이동">
+<!-- 페이지 개수 1개 인 경우 페이지네이션 숨김 -->
+<nav class="pagination" th:if="${projectPage.totalPages > 1}" aria-label="페이지 이동">
 
     <!-- 이전 버튼: 첫 페이지면 숨김 -->
     <a class="pagination-btn"
