@@ -57,6 +57,15 @@
     border-color: #c7d2fe;
 }
 
+/* ===== 결과 없음 ===== */
+.empty-state {
+    padding: 48px 0;
+    color: #9ca3af;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+}
+
 /* ===== 페이지네이션 ===== */
 .pagination {
     display: flex;

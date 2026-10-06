@@ -106,6 +106,18 @@
     </div>
 </div>
 
+<div class="project-list">
+    <!-- 결과 없을 때 안내 메시지 -->
+    <p th:if="${projectPage.totalElements == 0}" class="empty-state">
+        해당 조건의 프로젝트가 없습니다.
+    </p>
+
+    <div class="project-card" th:each="card : ${projectPage.content}">
+        ...
+    </div>
+</div>
+
+
 <!-- 페이지네이션 -->
 <nav class="pagination" aria-label="페이지 이동">
     
