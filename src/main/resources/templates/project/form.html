@@ -13,39 +13,48 @@
     <h1>모집글 작성</h1>
     <p>프로젝트에 함께할 팀원 1명을 모집합니다.</p>
 
-    <form class="project-form">
+    <!-- POST /projects → ProjectController.create() → 성공 시 /projects/{id}로 리다이렉트 -->
+    <form class="project-form" method="post"
+          th:action="@{/projects}"
+          th:object="${projectForm}">
+
         <fieldset>
             <legend>프로젝트 소개</legend>
 
             <div class="form-field">
-                <label for="title">프로젝트 제목</label>
+                <label for="title" class="required">프로젝트 제목</label>
                 <input
                         type="text"
                         id="title"
-                        name="title"
+                        th:field="*{title}"
                         placeholder="예: 공모전 웹서비스 백엔드 팀원 모집"
-                        required
                 >
+                <!-- 서버 검증 실패 시 오류 메시지 표시 -->
+                <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="field-error"></p>
             </div>
 
             <div class="form-field">
-                <label for="description">상세 설명</label>
+                <label for="description" class="required">상세 설명</label>
                 <textarea
                         id="description"
-                        name="description"
+                        th:field="*{description}"
                         rows="6"
                         placeholder="프로젝트 소개, 진행 기간, 담당 업무 등을 작성해주세요."
-                        required
                 ></textarea>
+                <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="field-error"></p>
             </div>
         </fieldset>
 
         <fieldset>
             <legend>모집 역할 및 기술</legend>
+            <p class="field-hint">
+                필수 기술은 지원 조건이며, 우대 기술은 적합도 점수에 반영됩니다.
+                동일 기술은 필수·우대 중 한쪽에만 선택할 수 있습니다.
+            </p>
 
             <div class="form-field">
-                <label for="role">모집 역할</label>
-                <select id="role" name="role" required>
+                <label for="role" class="required">모집 역할</label>
+                <select id="role" th:field="*{role}">
                     <option value="">역할을 선택하세요</option>
                     <option value="FRONTEND">프론트엔드</option>
                     <option value="BACKEND">백엔드</option>
@@ -53,135 +62,142 @@
                     <option value="IOS">iOS</option>
                     <option value="AI">AI</option>
                 </select>
+                <p th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="field-error"></p>
             </div>
 
             <fieldset class="skill-options">
                 <legend>필수 기술 — 여러 개 선택 가능</legend>
 
+                <!-- th:field로 컬렉션 바인딩: 서버 반환 시 기존 선택값 유지 -->
                 <label>
-                    <input type="checkbox" name="requiredSkills" value="JAVA">
+                    <input type="checkbox" th:field="*{requiredSkills}" value="JAVA">
                     Java
                 </label>
                 <label>
-                    <input type="checkbox" name="requiredSkills" value="KOTLIN">
+                    <input type="checkbox" th:field="*{requiredSkills}" value="KOTLIN">
                     Kotlin
                 </label>
                 <label>
-                    <input type="checkbox" name="requiredSkills" value="PYTHON">
+                    <input type="checkbox" th:field="*{requiredSkills}" value="PYTHON">
                     Python
                 </label>
                 <label>
-                    <input type="checkbox" name="requiredSkills" value="JAVASCRIPT">
+                    <input type="checkbox" th:field="*{requiredSkills}" value="JAVASCRIPT">
                     JavaScript
                 </label>
                 <label>
-                    <input type="checkbox" name="requiredSkills" value="SPRING_BOOT">
+                    <input type="checkbox" th:field="*{requiredSkills}" value="SPRING_BOOT">
                     Spring Boot
                 </label>
                 <label>
-                    <input type="checkbox" name="requiredSkills" value="REACT">
+                    <input type="checkbox" th:field="*{requiredSkills}" value="REACT">
                     React
                 </label>
+                <!-- skillsDisjoint 오류: 필수·우대 기술 중복 선택 시 (@AssertTrue) -->
+                <p th:if="${#fields.hasErrors('skillsDisjoint')}" th:errors="*{skillsDisjoint}" class="field-error"></p>
             </fieldset>
 
             <fieldset class="skill-options">
                 <legend>우대 기술 — 여러 개 선택 가능</legend>
 
                 <label>
-                    <input type="checkbox" name="preferredSkills" value="JAVA">
+                    <input type="checkbox" th:field="*{preferredSkills}" value="JAVA">
                     Java
                 </label>
                 <label>
-                    <input type="checkbox" name="preferredSkills" value="KOTLIN">
+                    <input type="checkbox" th:field="*{preferredSkills}" value="KOTLIN">
                     Kotlin
                 </label>
                 <label>
-                    <input type="checkbox" name="preferredSkills" value="PYTHON">
+                    <input type="checkbox" th:field="*{preferredSkills}" value="PYTHON">
                     Python
                 </label>
                 <label>
-                    <input type="checkbox" name="preferredSkills" value="JAVASCRIPT">
+                    <input type="checkbox" th:field="*{preferredSkills}" value="JAVASCRIPT">
                     JavaScript
                 </label>
                 <label>
-                    <input type="checkbox" name="preferredSkills" value="SPRING_BOOT">
+                    <input type="checkbox" th:field="*{preferredSkills}" value="SPRING_BOOT">
                     Spring Boot
                 </label>
                 <label>
-                    <input type="checkbox" name="preferredSkills" value="REACT">
+                    <input type="checkbox" th:field="*{preferredSkills}" value="REACT">
                     React
                 </label>
             </fieldset>
 
-            <p class="field-hint">
-                필수 기술은 지원 조건이며, 우대 기술은 적합도 점수에 반영됩니다.
-                동일 기술은 필수·우대 중 한쪽에만 선택할 수 있습니다.
-            </p>
         </fieldset>
 
         <fieldset>
             <legend>활동 시간</legend>
-
+            <p class="field-hint">
+                최소 공통 시간 ≤ 희망 공통 시간 ≤ 요구 주당 시간으로 입력해주세요.
+            </p>
             <div class="form-field">
-                <label for="requiredWeeklyHours">요구 주당 시간</label>
+                <label for="requiredWeeklyHours" class="required">요구 주당 시간</label>
+                <p id="weeklyHoursHelp" class="field-hint">
+                    개인 작업과 공동 활동을 포함하여 필요한 주당 참여 시간입니다.
+                </p>
                 <input
                         type="number"
                         id="requiredWeeklyHours"
-                        name="requiredWeeklyHours"
+                        th:field="*{requiredWeeklyHours}"
                         min="1"
                         max="168"
                         step="1"
                         placeholder="예: 8"
-                        required
                         aria-describedby="weeklyHoursHelp"
                 >
-                <p id="weeklyHoursHelp" class="field-hint">
-                    개인 작업과 공동 활동을 포함하여 필요한 주당 참여 시간입니다.
-                </p>
+                
+                <p th:if="${#fields.hasErrors('requiredWeeklyHours')}" th:errors="*{requiredWeeklyHours}" class="field-error"></p>
             </div>
 
             <div class="form-field">
-                <label for="minimumCommonHours">최소 공통 활동 시간</label>
+                <label for="minimumCommonHours" class="required">최소 공통 활동 시간</label>
+                <p id="minimumHoursHelp" class="field-hint">
+                    지원자가 팀과 함께 활동할 수 있어야 하는 최소 시간입니다.
+                </p>
                 <input
                         type="number"
                         id="minimumCommonHours"
-                        name="minimumCommonHours"
+                        th:field="*{minimumCommonHours}"
                         min="1"
                         max="168"
                         step="1"
                         placeholder="예: 2"
-                        required
                         aria-describedby="minimumHoursHelp"
                 >
-                <p id="minimumHoursHelp" class="field-hint">
-                    지원자가 팀과 함께 활동할 수 있어야 하는 최소 시간입니다.
-                </p>
+                
+                <p th:if="${#fields.hasErrors('minimumCommonHours')}" th:errors="*{minimumCommonHours}" class="field-error"></p>
             </div>
 
             <div class="form-field">
-                <label for="desiredCommonHours">희망 공통 활동 시간</label>
+                <label for="desiredCommonHours" class="required">희망 공통 활동 시간</label>
+                <p id="desiredHoursHelp" class="field-hint">
+                    공통 시간 적합도 점수가 만점이 되는 기준입니다.
+                </p>
                 <input
                         type="number"
                         id="desiredCommonHours"
-                        name="desiredCommonHours"
+                        th:field="*{desiredCommonHours}"
                         min="1"
                         max="168"
                         step="1"
                         placeholder="예: 4"
-                        required
                         aria-describedby="desiredHoursHelp"
                 >
-                <p id="desiredHoursHelp" class="field-hint">
-                    공통 시간 적합도 점수가 만점이 되는 기준입니다.
-                </p>
+                
+                <p th:if="${#fields.hasErrors('desiredCommonHours')}" th:errors="*{desiredCommonHours}" class="field-error"></p>
             </div>
 
-            <p class="field-hint">
-                최소 공통 시간 ≤ 희망 공통 시간 ≤ 요구 주당 시간으로 입력해주세요.
-            </p>
+            
+            <!-- hoursOrdered 오류: 시간 조건 위반 시 (@AssertTrue) -->
+            <p th:if="${#fields.hasErrors('hoursOrdered')}" th:errors="*{hoursOrdered}" class="field-error"></p>
+            <!-- 클라이언트 시간 조건 오류: project-form.js에서 동적으로 표시 -->
+            <p id="hoursOrderError" class="field-error" aria-live="polite"></p>
 
             <div class="form-field">
-                <p id="availabilityTitle">팀 활동 가능 시간대</p>
+                <p id="availabilityTitle" class="required">팀 활동 가능 시간대</p>
                 <p id="availabilityHelp" class="field-hint">
                     한국 시간 기준으로 팀이 함께 활동할 수 있는 시간을 선택하세요.
                     각 칸은 1시간입니다.
@@ -213,6 +229,10 @@
                 <p id="selectedTimeCount" aria-live="polite">
                     선택한 시간: 주 0시간
                 </p>
+                <!-- 클라이언트 시간대 미선택 오류: project-form.js에서 동적으로 표시 -->
+                <p id="availableSlotsError" class="field-error" aria-live="polite"></p>
+                <!-- availabilitySufficient 오류: 희망 공통 시간보다 적게 선택 시 (@AssertTrue) -->
+                <p th:if="${#fields.hasErrors('availabilitySufficient')}" th:errors="*{availabilitySufficient}" class="field-error"></p>
             </div>
         </fieldset>
 
@@ -220,36 +240,42 @@
             <legend>목표 및 협업 방식</legend>
 
             <div class="form-field">
-                <label for="goal">프로젝트 목표</label>
-                <select id="goal" name="goal" required>
+                <label for="goal" class="required">프로젝트 목표</label>
+                <select id="goal" th:field="*{goal}">
                     <option value="">목표를 선택하세요</option>
                     <option value="CONTEST">대회 출전</option>
                     <option value="PORTFOLIO">포트폴리오</option>
                     <option value="SERVICE">실제 서비스 운영</option>
                 </select>
+                <p th:if="${#fields.hasErrors('goal')}" th:errors="*{goal}" class="field-error"></p>
             </div>
 
             <div class="form-field">
-                <label for="meetingType">협업 방식</label>
-                <select id="meetingType" name="meetingType" required>
+                <label for="meetingType" class="required">협업 방식</label>
+                <select id="meetingType" th:field="*{meetingType}">
                     <option value="">방식을 선택하세요</option>
                     <option value="ONLINE">비대면</option>
                     <option value="OFFLINE">대면</option>
                 </select>
+                <p th:if="${#fields.hasErrors('meetingType')}" th:errors="*{meetingType}" class="field-error"></p>
             </div>
 
             <div class="form-field" id="regionField">
-                <label for="region">진행 지역 — 대면 선택 시 필수</label>
+                <label for="region" class="required">진행 지역 — 대면 선택 시 필수</label>
                 <input
                         type="text"
                         id="region"
-                        name="region"
+                        th:field="*{region}"
                         placeholder="예: 서울특별시 용산구"
                         aria-describedby="regionHelp"
                 >
                 <p id="regionHelp" class="field-hint">
-                    현재는 임시 텍스트 입력 방식입니다.
+                    시·군·구 기준으로 입력해 주세요.
                 </p>
+                <!-- offlineRegionPresent 오류: 대면 선택 후 지역 미입력 시 (@AssertTrue) -->
+                <p th:if="${#fields.hasErrors('offlineRegionPresent')}" th:errors="*{offlineRegionPresent}" class="field-error"></p>
+                <!-- region 오류: 지역 100자 초과 시 (@Size) -->
+                <p th:if="${#fields.hasErrors('region')}" th:errors="*{region}" class="field-error"></p>
             </div>
         </fieldset>
 
@@ -257,26 +283,37 @@
             <legend>모집 마감</legend>
 
             <div class="form-field">
-                <label for="deadline">모집 마감 일시</label>
-                <input
-                        type="datetime-local"
-                        id="deadline"
-                        name="deadline"
-                        required
-                        aria-describedby="deadlineHelp"
-                >
+                <label for="deadline" class="required">모집 마감 일시</label>
                 <p id="deadlineHelp" class="field-hint">
                     한국 시간 기준입니다. 마감 전이라도 팀원 1명을 수락하면
                     모집이 자동 종료됩니다.
                 </p>
+                <input
+                        type="datetime-local"
+                        id="deadline"
+                        th:field="*{deadline}"
+                        aria-describedby="deadlineHelp"
+                >
+                
+                <!-- deadlineFuture 오류: 과거 일시 입력 시 (@AssertTrue) -->
+                <p th:if="${#fields.hasErrors('deadlineFuture')}" th:errors="*{deadlineFuture}" class="field-error"></p>
             </div>
         </fieldset>
 
-        <button type="button" disabled>
-            모집글 등록 — 준비 중
-        </button>
+        <button type="submit">모집글 등록</button>
     </form>
 </main>
+
+<!--
+    서버 검증 오류로 폼이 재렌더링될 때 time-selector.js가 시간대를 복원할 수 있도록
+    Thymeleaf 인라인으로 기존 선택값을 JS 배열로 전달한다.
+    th:object 범위 밖이므로 ${projectForm.availableSlots} 사용
+-->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var preselectedSlots = /*[[${projectForm.availableSlots}]]*/ [];
+    /*]]>*/
+</script>
 <script src="../../static/js/time-selector.js"
         th:src="@{/js/time-selector.js}"></script>
 

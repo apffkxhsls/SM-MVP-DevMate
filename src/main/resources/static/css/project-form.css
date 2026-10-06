@@ -116,6 +116,31 @@ button:focus-visible {
     outline-offset: 2px;
 }
 
+/* 필수 항목 별표: label과 p 모두 대응 (팀 활동 시간대는 label 대신 p 사용) */
+label.required::after,
+p.required::after {
+    content: " *";
+    color: #ef4444;
+}
+
+/* 입력 오류 메시지 */
+.field-error {
+    margin: 0;
+    color: #ef4444;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* 내용이 없는 오류 요소는 공간을 차지하지 않도록 숨긴다 */
+p.field-error:empty {
+    display: none;
+}
+
+/* 오류 메시지 다음에 오는 입력 그룹의 간격 유지 */
+.field-error + .form-field {
+    margin-top: 24px;
+}
+
 /* 입력 안내 */
 .field-hint {
     margin: 12px 0 0;
@@ -304,10 +329,6 @@ select:disabled {
     color: #ffffff;
     background-color: #4f46e5;
     border-color: #4f46e5;
-}
-
-.time-slot input:checked + .time-slot-mark::after {
-    content: "✓";
 }
 
 .time-slot input:focus-visible + .time-slot-mark {

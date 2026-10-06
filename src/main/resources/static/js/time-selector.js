@@ -47,3 +47,20 @@ tableBody.addEventListener("change", () => {
 
     selectedTimeCount.textContent = `선택한 시간: 주 ${count}시간`;
 });
+
+// 서버 검증 오류로 폼이 재렌더링될 때 기존 선택 시간대를 복원한다.
+// preselectedSlots는 form.html의 Thymeleaf 인라인 스크립트에서 전역으로 주입된다.
+/* global preselectedSlots */
+if (typeof preselectedSlots !== 'undefined' && preselectedSlots.length > 0) {
+    const preselected = new Set(preselectedSlots);
+
+    tableBody.querySelectorAll('input[name="availableSlots"]').forEach(checkbox => {
+        if (preselected.has(Number(checkbox.value))) {
+            checkbox.checked = true;
+        }
+    });
+
+    // 복원 후 카운트 업데이트
+    const count = tableBody.querySelectorAll('input[name="availableSlots"]:checked').length;
+    selectedTimeCount.textContent = `선택한 시간: 주 ${count}시간`;
+}
