@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet"
+          href="../../static/css/style.css"
+          th:href="@{/css/style.css}">
+    <link rel="stylesheet"
+          href="../../static/css/project-detail.css"
+          th:href="@{/css/project-detail.css}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 탭 제목에 모집글 제목 삽입: | 문자가 리터럴 구분자와 충돌하므로 + 연산자로 연결 -->
+    <title th:text="${project.title} + ' | DevMate'">모집글 상세 | DevMate</title>
+</head>
+<body>
+
+<!-- 공통 상단 네비게이션 (style.css) -->
+<header class="site-header">
+    <nav class="nav-container" aria-label="주 메뉴">
+        <a class="logo" href="/projects" th:href="@{/projects}">DevMate</a>
+        <div class="nav-menu">
+            <a class="nav-link" href="/projects" th:href="@{/projects}">팀 찾기</a>
+            <a class="nav-link" href="/projects/new" th:href="@{/projects/new}">모집글 작성</a>
+            <a class="nav-link" href="/my/applications" th:href="@{/my/applications}">내 활동</a>
+            <a class="nav-link" href="/profile" th:href="@{/profile}">내 프로필</a>
+        </div>
+    </nav>
+</header>
+
+<main class="page-content project-detail-page">
+
+    <!-- 모집글 등록 성공 시 플래시 메시지 (ProjectController → RedirectAttributes) -->
+    <div th:if="${successMessage}" class="success-banner" role="status">
+        <span th:text="${successMessage}">모집글이 등록되었습니다.</span>
+    </div>
+
+    <!-- 제목 + 모집 중/마감 상태 뱃지 -->
+    <div class="detail-header">
+        <h1 class="page-title" th:text="${project.title}">프로젝트 제목</h1>
+        <span class="status-badge"
+              th:classappend="${project.recruiting} ? 'status-open' : 'status-closed'"
+              th:text="${project.recruiting} ? '모집 중' : '마감'">모집 중</span>
+    </div>
+
+    <!-- 작성자 · 작성일 -->
+    <p class="detail-meta">
+        <span th:text="${project.authorName}">작성자</span>
+        <span class="meta-sep" aria-hidden="true">·</span>
+        <time th:datetime="${project.createdAt}"
+              th:text="${#temporals.format(project.createdAt, 'yyyy.MM.dd')}">2025.01.01</time>
+    </p>
+
+    <!-- ===== 프로젝트 소개 ===== -->
+    <section class="detail-section">
+        <h2>프로젝트 소개</h2>
+        <!-- white-space: pre-wrap으로 줄바꿈 유지 -->
+        <p class="detail-description" th:text="${project.description}">상세 설명이 여기에 표시됩니다.</p>
+    </section>
+
+    <!-- ===== 모집 역할 및 기술 ===== -->
+    <section class="detail-section">
+        <h2>모집 역할 및 기술</h2>
+
+        <div class="detail-row">
+            <span class="detail-label">모집 역할</span>
+            <!-- enum 이름을 한국어로 변환 -->
+            <span th:switch="${project.role.name()}">
+                <span th:case="'FRONTEND'">프론트엔드</span>
+                <span th:case="'BACKEND'">백엔드</span>
+                <span th:case="'ANDROID'">Android</span>
+                <span th:case="'IOS'">iOS</span>
+                <span th:case="'AI'">AI</span>
+            </span>
+        </div>
+
+        <!-- 필수 기술이 있을 때만 표시 (ProjectForm에서 선택 사항) -->
+        <div class="detail-row" th:if="${not #sets.isEmpty(project.requiredSkills)}">
+            <span class="detail-label">필수 기술</span>
+            <div class="skill-tag-list">
+                <span class="skill-tag skill-required" th:each="skill : ${project.requiredSkills}">
+                    <span th:switch="${skill.name()}">
+                        <span th:case="'JAVA'">Java</span>
+                        <span th:case="'KOTLIN'">Kotlin</span>
+                        <span th:case="'PYTHON'">Python</span>
+                        <span th:case="'JAVASCRIPT'">JavaScript</span>
+                        <span th:case="'SPRING_BOOT'">Spring Boot</span>
+                        <span th:case="'REACT'">React</span>
+                    </span>
+                </span>
+            </div>
+        </div>
+
+        <!-- 우대 기술이 있을 때만 표시 -->
+        <div class="detail-row" th:if="${not #sets.isEmpty(project.preferredSkills)}">
+            <span class="detail-label">우대 기술</span>
+            <div class="skill-tag-list">
+                <span class="skill-tag skill-preferred" th:each="skill : ${project.preferredSkills}">
+                    <span th:switch="${skill.name()}">
+                        <span th:case="'JAVA'">Java</span>
+                        <span th:case="'KOTLIN'">Kotlin</span>
+                        <span th:case="'PYTHON'">Python</span>
+                        <span th:case="'JAVASCRIPT'">JavaScript</span>
+                        <span th:case="'SPRING_BOOT'">Spring Boot</span>
+                        <span th:case="'REACT'">React</span>
+                    </span>
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 활동 시간 ===== -->
+    <section class="detail-section">
+        <h2>활동 시간</h2>
+
+        <div class="detail-row">
+            <span class="detail-label">요구 주당 시간</span>
+            <span th:text="|${project.requiredWeeklyHours}시간|">8시간</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">최소 공통 활동 시간</span>
+            <span th:text="|${project.minimumCommonHours}시간|">2시간</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">희망 공통 활동 시간</span>
+            <span th:text="|${project.desiredCommonHours}시간|">4시간</span>
+        </div>
+
+        <!-- 시간대 테이블: time-selector.js가 동적 생성, preselectedSlots로 선택값 복원 -->
+        <div class="detail-row detail-row--block">
+            <span class="detail-label">팀 활동 가능 시간대</span>
+            <p id="selectedTimeCount" aria-live="polite">선택한 시간: 주 0시간</p>
+            <!-- time-table-wrapper--readonly: CSS pointer-events:none으로 클릭 차단 -->
+            <div class="time-table-wrapper time-table-wrapper--readonly"
+                 role="region"
+                 aria-label="팀 활동 가능 시간대">
+                <table class="time-table" aria-label="팀 활동 가능 시간대">
+                    <thead>
+                    <tr>
+                        <th scope="col">시간</th>
+                        <th scope="col">월</th>
+                        <th scope="col">화</th>
+                        <th scope="col">수</th>
+                        <th scope="col">목</th>
+                        <th scope="col">금</th>
+                        <th scope="col">토</th>
+                        <th scope="col">일</th>
+                    </tr>
+                    </thead>
+                    <tbody id="timeTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 목표 및 협업 방식 ===== -->
+    <section class="detail-section">
+        <h2>목표 및 협업 방식</h2>
+
+        <div class="detail-row">
+            <span class="detail-label">프로젝트 목표</span>
+            <span th:switch="${project.goal.name()}">
+                <span th:case="'CONTEST'">대회 출전</span>
+                <span th:case="'PORTFOLIO'">포트폴리오</span>
+                <span th:case="'SERVICE'">실제 서비스 운영</span>
+            </span>
+        </div>
+
+        <div class="detail-row">
+            <span class="detail-label">협업 방식</span>
+            <span th:text="${project.meetingType.name() == 'OFFLINE'} ? '대면' : '비대면'">비대면</span>
+        </div>
+
+        <!-- 진행 지역: 대면일 때만 표시 -->
+        <div class="detail-row" th:if="${project.meetingType.name() == 'OFFLINE'}">
+            <span class="detail-label">진행 지역</span>
+            <span th:text="${project.region}">서울특별시 용산구</span>
+        </div>
+    </section>
+
+    <!-- ===== 모집 마감 ===== -->
+    <section class="detail-section">
+        <h2>모집 마감</h2>
+        <div class="detail-row">
+            <span class="detail-label">모집 마감 일시</span>
+            <time th:datetime="${project.deadline}"
+                  th:text="${#temporals.format(project.deadline, 'yyyy년 MM월 dd일 HH:mm')}">
+                2025년 12월 31일 23:59
+            </time>
+        </div>
+    </section>
+    <!-- ===== 돌아가기 버튼 ===== -->
+    <a href="/projects" th:href="@{/projects}" class="back-link">
+    팀 찾기로 돌아가기
+    </a>
+
+</main>
+
+<!--
+    time-selector.js가 시간대 테이블을 생성한 뒤 preselectedSlots로 선택값 복원.
+    th:object 범위 밖이므로 ${project.availableSlots} 사용.
+-->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var preselectedSlots = /*[[${project.availableSlots}]]*/ [];
+    /*]]>*/
+</script>
+<script src="../../static/js/time-selector.js"
+        th:src="@{/js/time-selector.js}"></script>
+        
+<!-- 읽기 전용: 키보드로도 값 변경 불가하도록 체크박스 비활성화 -->
+<script>
+    document.querySelectorAll('.time-table-wrapper--readonly input')
+        .forEach(function(input) { input.disabled = true; });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,259 @@
+* {
+    box-sizing: border-box;
+}
+
+/* ===== 페이지 레이아웃 ===== */
+.project-detail-page {
+    max-width: 760px;
+}
+
+/* ===== 등록 성공 배너 ===== */
+.success-banner {
+    margin-bottom: 24px;
+    padding: 14px 16px;
+    color: #15803d;
+    background-color: #dcfce7;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ===== 제목 + 상태 뱃지 ===== */
+.detail-header {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.detail-header .page-title {
+    margin: 0;
+    flex: 1;
+}
+
+.status-badge {
+    flex-shrink: 0;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.8;
+}
+
+/* 모집 중 */
+.status-open {
+    color: #15803d;
+    background-color: #dcfce7;
+}
+
+/* 마감 */
+.status-closed {
+    color: #6b7280;
+    background-color: #f3f4f6;
+}
+
+/* ===== 작성자 · 작성일 ===== */
+.detail-meta {
+    margin: 0 0 24px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.meta-sep {
+    margin: 0 6px;
+}
+
+/* ===== 섹션 카드 ===== */
+.detail-section {
+    padding: 24px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+}
+
+.detail-section + .detail-section {
+    margin-top: 24px;
+}
+
+.detail-section h2 {
+    margin: 0 0 16px;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.6;
+}
+
+/* ===== 라벨-값 행 ===== */
+.detail-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.detail-row + .detail-row {
+    margin-top: 12px;
+}
+
+/* 시간대 테이블처럼 세로로 쌓이는 행 */
+.detail-row--block {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.detail-label {
+    flex-shrink: 0;
+    width: 160px;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* ===== 상세 설명 ===== */
+.detail-description {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.8;
+    white-space: pre-wrap; /* 원문 줄바꿈 유지 */
+}
+
+/* ===== 기술 태그 ===== */
+.skill-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.skill-tag {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* 필수 기술 */
+.skill-required {
+    color: #4338ca;
+    background-color: #eef2ff;
+}
+
+/* 우대 기술 */
+.skill-preferred {
+    color: #15803d;
+    background-color: #dcfce7;
+}
+
+/* ===== 선택 시간 카운트 ===== */
+#selectedTimeCount {
+    margin: 0;
+    color: #4f46e5;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ===== 시간대 선택표 (project-form.css에서 복사) ===== */
+.time-table-wrapper {
+    max-height: 420px;
+    overflow: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+/* 읽기 전용: 클릭·hover 비활성화 */
+.time-table-wrapper--readonly .time-slot {
+    pointer-events: none;
+}
+
+.time-table {
+    width: 100%;
+    min-width: 480px;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+}
+
+.time-table th,
+.time-table td {
+    padding: 4px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.time-table th {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    background-color: #f9fafb;
+}
+
+.time-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 12px 4px;
+}
+
+.time-table th:first-child {
+    width: 64px;
+}
+
+.time-slot {
+    position: relative;
+    display: block;
+    cursor: default;
+}
+
+.time-slot input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+
+.time-slot-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+}
+
+.time-slot input:checked + .time-slot-mark {
+    color: #ffffff;
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+}
+
+/* ===== 팀 찾기 돌아가기 버튼 ===== */
+.back-link {
+    display: block;
+    margin-top: 24px;
+    padding: 14px 20px;
+    color: #4f46e5;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    background-color: #ffffff;
+    border: 1px solid #4f46e5;
+    border-radius: 10px;
+}
+
+/* ===== 모바일 ===== */
+@media (max-width: 600px) {
+    .detail-section {
+        padding: 20px 16px;
+    }
+
+    .detail-label {
+        width: 120px;
+    }
+}
+
