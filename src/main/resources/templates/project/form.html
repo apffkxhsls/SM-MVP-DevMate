@@ -274,6 +274,8 @@
                 </p>
                 <!-- offlineRegionPresent 오류: 대면 선택 후 지역 미입력 시 (@AssertTrue) -->
                 <p th:if="${#fields.hasErrors('offlineRegionPresent')}" th:errors="*{offlineRegionPresent}" class="field-error"></p>
+                <!-- region 오류: 지역 100자 초과 시 (@Size) -->
+                <p th:if="${#fields.hasErrors('region')}" th:errors="*{region}" class="field-error"></p>
             </div>
         </fieldset>
 
