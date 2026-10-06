@@ -197,6 +197,49 @@ class ApplicationServiceTest {
     }
 
     @Test
+    void 지원_기한이_지나도_OPEN이면_기존_지원자를_수락한다() {
+        Project expired = saveProject(now().minusDays(1));
+
+        Long selectedId = applications.saveAndFlush(
+                new ProjectApplication(expired, applicant)
+        ).getId();
+
+        Long remainingId = applications.saveAndFlush(
+                new ProjectApplication(expired, other)
+        ).getId();
+
+        flushAndClear();
+
+        service.accept(selectedId, author.getId());
+        flushAndClear();
+
+        assertThat(applications.findById(selectedId).orElseThrow().getStatus())
+                .isEqualTo(ApplicationStatus.ACCEPTED);
+        assertThat(applications.findById(remainingId).orElseThrow().getStatus())
+                .isEqualTo(ApplicationStatus.REJECTED);
+        assertThat(projects.findById(expired.getId()).orElseThrow().getStatus())
+                .isEqualTo(ProjectStatus.CLOSED);
+    }
+
+    @Test
+    void CLOSED이면_대기_지원자를_수락할_수_없다() {
+        Long applicationId = saveApplication(applicant).getId();
+        project.close();
+        flushAndClear();
+
+        assertThatThrownBy(() ->
+                service.accept(applicationId, author.getId())
+        ).isInstanceOf(ApplicationConflictException.class);
+
+        flushAndClear();
+
+        assertThat(applications.findById(applicationId).orElseThrow().getStatus())
+                .isEqualTo(ApplicationStatus.PENDING);
+        assertThat(projects.findById(project.getId()).orElseThrow().getStatus())
+                .isEqualTo(ProjectStatus.CLOSED);
+    }
+
+    @Test
     void 작성자가_아니면_수락할_수_없다() {
         Long id = saveApplication(applicant).getId();
         flushAndClear();

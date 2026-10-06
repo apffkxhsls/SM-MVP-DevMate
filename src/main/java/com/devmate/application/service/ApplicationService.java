@@ -5,6 +5,7 @@ import com.devmate.application.ProjectApplication;
 import com.devmate.application.dto.ApplicationView;
 import com.devmate.application.exception.ApplicationConflictException;
 import com.devmate.application.repository.ApplicationRepository;
+import com.devmate.common.enums.ProjectStatus;
 import com.devmate.matching.MatchResult;
 import com.devmate.matching.MatchStatus;
 import com.devmate.matching.service.MatchingService;
@@ -139,9 +140,9 @@ public class ApplicationService {
 
         LocalDateTime now = LocalDateTime.now(KOREA_ZONE);
 
-        if (!project.isRecruiting(now)) {
+        if (project.getStatus() != ProjectStatus.OPEN) {
             throw new ApplicationConflictException(
-                    "모집이 마감되어 지원자를 수락할 수 없습니다."
+                    "모집이 종료되어 지원자를 수락할 수 없습니다."
             );
         }
 
