@@ -1,0 +1,112 @@
+/* ===== 프로필 미작성 안내 배너 ===== */
+.profile-required-banner {
+    margin-bottom: 24px;
+    padding: 14px 16px;
+    color: #92400e;
+    background-color: #fef3c7;
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.profile-required-banner a {
+    display: inline-block;
+    margin-left: 12px;
+    padding: 8px 18px;
+    color: #ffffff;
+    background-color: #92400e;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    line-height: 1.2;
+}
+.profile-required-banner a:hover {
+    background-color: #926d56;
+}
+
+/* ===== 판정 상태 탭 ===== */
+.status-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.status-tab {
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    color: #6b7280;
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
+}
+
+/* 선택된 탭 */
+.status-tab--active {
+    color: #4f46e5;
+    background-color: #eef2ff;
+    border-color: #c7d2fe;
+}
+/* 탭 hover */
+.status-tab:hover {
+    color: #4f46e5;
+    background-color: #eef2ff;
+    border-color: #c7d2fe;
+}
+
+/* ===== 결과 없음 ===== */
+.empty-state {
+    padding: 48px 0;
+    color: #9ca3af;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* ===== 페이지네이션 ===== */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.pagination-btn {
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    color: #4f46e5;
+    background-color: #eef2ff;
+    border: 1px solid #c7d2fe;
+}
+
+.pagination-btn:hover {
+    background-color: #e0e7ff;
+}
+
+.pagination-info {
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+
+/* ===== 모바일 ===== */
+@media (max-width: 600px) {
+    .profile-required-banner {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .profile-required-banner a {
+        margin-left: 0;
+        text-align: center;
+    }
+}
