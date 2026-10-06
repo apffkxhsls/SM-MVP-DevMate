@@ -206,6 +206,12 @@
 </script>
 <script src="../../static/js/time-selector.js"
         th:src="@{/js/time-selector.js}"></script>
+        
+<!-- 읽기 전용: 키보드로도 값 변경 불가하도록 체크박스 비활성화 -->
+<script>
+    document.querySelectorAll('.time-table-wrapper--readonly input')
+        .forEach(function(input) { input.disabled = true; });
+</script>
 
 </body>
 </html>
