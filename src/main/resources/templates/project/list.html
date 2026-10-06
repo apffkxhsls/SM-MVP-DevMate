@@ -108,6 +108,10 @@
 
 <!-- 페이지네이션 -->
 <nav class="pagination" aria-label="페이지 이동">
+    
+    <!-- 페이지 개수 1개 인 경우 페이지네이션 숨김 -->
+    <nav class="pagination" th:if="${projectPage.totalPages > 1}" aria-label="페이지 이동">
+
     <!-- 이전 버튼: 첫 페이지면 숨김 -->
     <a class="pagination-btn"
        th:if="${!projectPage.first}"
