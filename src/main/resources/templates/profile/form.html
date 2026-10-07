@@ -31,11 +31,12 @@
                     <option value="IOS">iOS</option>
                     <option value="AI">AI</option>
                 </select>
+                <!-- 서버 검증 실패 시 오류 메시지 표시 -->
+                <p th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="field-error"></p>
             </div>
 
             <fieldset class="skill-options">
-                
-                <!-- POST /profile → ProfileController.save() → 성공 시 /profile로 리다이렉트 -->
+                <!-- th:field로 컬렉션 바인딩: 서버 반환 시 기존 선택값 유지 -->
                 <legend>보유 기술 스택 — 여러 개 선택 가능</legend>
 
                 <label>
@@ -63,6 +64,8 @@
                     React
                 </label>
             </fieldset>
+            <!-- skills 오류: JS validateSkills()가 처리 -->
+            <p id="skillsError" class="field-error" aria-live="polite"></p>
         </fieldset>
 
         <fieldset>
@@ -78,11 +81,8 @@
                         max="168"
                         step="1"
                         placeholder="예: 6"
-                        aria-describedby="weeklyHoursHelp"
                 >
-                <p id="weeklyHoursHelp">
-                    일주일 동안 실제로 참여할 수 있는 시간을 입력하세요.
-                </p>
+                <p th:if="${#fields.hasErrors('weeklyHours')}" th:errors="*{weeklyHours}" class="field-error"></p>
             </div>
 
             <div class="form-field">
@@ -119,6 +119,8 @@
                 <p id="selectedTimeCount" aria-live="polite">
                     선택한 시간: 주 0시간
                 </p>
+                <!-- availableSlots 오류: JS validateAvailableSlots()가 처리 -->
+                <p id="availableSlotsError" class="field-error" aria-live="polite"></p>
             </div>
         </fieldset>
 
@@ -133,6 +135,7 @@
                     <option value="PORTFOLIO">포트폴리오</option>
                     <option value="SERVICE">실제 서비스 운영</option>
                 </select>
+                <p th:if="${#fields.hasErrors('goal')}" th:errors="*{goal}" class="field-error"></p>
             </div>
 
             <div class="form-field">
@@ -144,6 +147,8 @@
                         placeholder="예: 서울특별시 용산구"
                         aria-describedby="regionHelp"
                 >
+                <!-- region 오류: 100자 초과 시 (@Size) -->
+                <p th:if="${#fields.hasErrors('region')}" th:errors="*{region}" class="field-error"></p>
                 <p id="regionHelp">
                     대면 활동 시 필수사항으로 활동이 가능한 지역을 입력해주세요.
                 </p>
@@ -161,6 +166,8 @@
                         th:field="*{portfolioUrl}"
                         placeholder="https://github.com/사용자명"
                 >
+                <!-- portfolioUrl 오류: 2000자 초과 또는 URL 형식 불일치 시 -->
+                <p th:if="${#fields.hasErrors('portfolioUrl')}" th:errors="*{portfolioUrl}" class="field-error"></p>
             </div>
 
             <div class="form-field">
@@ -171,6 +178,8 @@
                         rows="5"
                         placeholder="프로젝트 경험이나 관심 분야를 소개해주세요."
                 ></textarea>
+                <!-- introduction 오류: 1000자 초과 시 (@Size) -->
+                <p th:if="${#fields.hasErrors('introduction')}" th:errors="*{introduction}" class="field-error"></p>
             </div>
         </fieldset>
 
@@ -184,7 +193,7 @@
     서버 검증 오류로 폼이 재렌더링될 때 time-selector.js가 시간대를 복원할 수 있도록
     Thymeleaf 인라인으로 기존 선택값을 JS 배열로 전달한다.
     th:object 범위 밖이므로 ${profileForm.availableSlots} 사용
--->\
+-->
 <script th:inline="javascript">
     /*<![CDATA[*/
     var preselectedSlots = /*[[${profileForm.availableSlots}]]*/ [];
@@ -193,5 +202,7 @@
 
 <script src="../../static/js/time-selector.js"
         th:src="@{/js/time-selector.js}"></script>
+<script src="../../static/js/profile-form.js"
+        th:src="@{/js/profile-form.js}"></script>
 </body>
 </html>
