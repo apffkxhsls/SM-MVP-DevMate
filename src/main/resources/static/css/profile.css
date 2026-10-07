@@ -281,10 +281,6 @@ button:focus-visible {
     border-color: #4f46e5;
 }
 
-.time-slot input:checked + .time-slot-mark::after {
-    content: "✓";
-}
-
 .time-slot input:focus-visible + .time-slot-mark {
     outline: 3px solid #a5b4fc;
     outline-offset: 1px;
@@ -298,4 +294,5 @@ button:focus-visible {
 #selectedTimeCount {
     color: #4f46e5;
     font-weight: 600;
+    font-size: 16px;
 }
