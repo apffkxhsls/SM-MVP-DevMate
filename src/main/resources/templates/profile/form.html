@@ -13,13 +13,17 @@
     <h1>내 프로필</h1>
     <p>기술 스택과 활동 가능한 시간을 알려주세요.</p>
 
-    <form class="profile-form">
+    <!-- POST /profile → ProfileController.save() → 성공 시 /profile로 리다이렉트 -->
+    <form class="profile-form"
+      th:object="${profileForm}"
+      th:action="@{/profile}"
+      method="post">
         <fieldset>
             <legend>역할 및 기술</legend>
 
             <div class="form-field">
                 <label for="role">희망 역할</label>
-                <select id="role" name="role" required>
+                <select id="role" th:field="*{role}">
                     <option value="">역할을 선택하세요</option>
                     <option value="FRONTEND">프론트엔드</option>
                     <option value="BACKEND">백엔드</option>
@@ -30,30 +34,32 @@
             </div>
 
             <fieldset class="skill-options">
+                
+                <!-- POST /profile → ProfileController.save() → 성공 시 /profile로 리다이렉트 -->
                 <legend>보유 기술 스택 — 여러 개 선택 가능</legend>
 
                 <label>
-                    <input type="checkbox" name="skills" value="JAVA">
+                    <input type="checkbox" th:field="*{skills}" value="JAVA">
                     Java
                 </label>
                 <label>
-                    <input type="checkbox" name="skills" value="KOTLIN">
+                    <input type="checkbox" th:field="*{skills}" value="KOTLIN">
                     Kotlin
                 </label>
                 <label>
-                    <input type="checkbox" name="skills" value="PYTHON">
+                    <input type="checkbox" th:field="*{skills}" value="PYTHON">
                     Python
                 </label>
                 <label>
-                    <input type="checkbox" name="skills" value="JAVASCRIPT">
+                    <input type="checkbox" th:field="*{skills}" value="JAVASCRIPT">
                     JavaScript
                 </label>
                 <label>
-                    <input type="checkbox" name="skills" value="SPRING_BOOT">
+                    <input type="checkbox" th:field="*{skills}" value="SPRING_BOOT">
                     Spring Boot
                 </label>
                 <label>
-                    <input type="checkbox" name="skills" value="REACT">
+                    <input type="checkbox" th:field="*{skills}" value="REACT">
                     React
                 </label>
             </fieldset>
@@ -67,12 +73,11 @@
                 <input
                         type="number"
                         id="weeklyHours"
-                        name="weeklyHours"
+                        th:field="*{weeklyHours}"
                         min="1"
                         max="168"
                         step="1"
                         placeholder="예: 6"
-                        required
                         aria-describedby="weeklyHoursHelp"
                 >
                 <p id="weeklyHoursHelp">
@@ -122,7 +127,7 @@
 
             <div class="form-field">
                 <label for="goal">희망 목표</label>
-                <select id="goal" name="goal" required>
+                <select id="goal" th:field="*{goal}">
                     <option value="">목표를 선택하세요</option>
                     <option value="CONTEST">대회 출전</option>
                     <option value="PORTFOLIO">포트폴리오</option>
@@ -131,16 +136,16 @@
             </div>
 
             <div class="form-field">
-                <label for="region">대면 가능 지역 — 대면 지원 시 필요</label>
+                <label for="region">대면 가능 지역</label>
                 <input
                         type="text"
                         id="region"
-                        name="region"
+                        th:field="*{region}"
                         placeholder="예: 서울특별시 용산구"
                         aria-describedby="regionHelp"
                 >
                 <p id="regionHelp">
-                    현재는 화면 시안이며, 추후 지역 선택 방식으로 변경합니다.
+                    대면 활동 시 필수사항으로 활동이 가능한 지역을 입력해주세요.
                 </p>
             </div>
         </fieldset>
@@ -149,31 +154,43 @@
             <legend>추가 소개</legend>
 
             <div class="form-field">
-                <label for="portfolioUrl">포트폴리오 링크 — 선택</label>
+                <label for="portfolioUrl">포트폴리오 링크</label>
                 <input
                         type="url"
                         id="portfolioUrl"
-                        name="portfolioUrl"
+                        th:field="*{portfolioUrl}"
                         placeholder="https://github.com/사용자명"
                 >
             </div>
 
             <div class="form-field">
-                <label for="introduction">자기소개 — 선택</label>
+                <label for="introduction">자기소개</label>
                 <textarea
                         id="introduction"
-                        name="introduction"
+                        th:field="*{introduction}"
                         rows="5"
                         placeholder="프로젝트 경험이나 관심 분야를 소개해주세요."
                 ></textarea>
             </div>
         </fieldset>
 
-        <button type="button" disabled>
-            프로필 저장 — 준비 중
+        <button type="submit">
+            프로필 저장
         </button>
     </form>
 </main>
+
+<!--
+    서버 검증 오류로 폼이 재렌더링될 때 time-selector.js가 시간대를 복원할 수 있도록
+    Thymeleaf 인라인으로 기존 선택값을 JS 배열로 전달한다.
+    th:object 범위 밖이므로 ${profileForm.availableSlots} 사용
+-->\
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var preselectedSlots = /*[[${profileForm.availableSlots}]]*/ [];
+    /*]]>*/
+</script>
+
 <script src="../../static/js/time-selector.js"
         th:src="@{/js/time-selector.js}"></script>
 </body>
