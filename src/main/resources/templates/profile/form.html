@@ -10,7 +10,22 @@
 </head>
 <body>
 <main class="profile-page">
-    <h1>내 프로필</h1>
+    <div class="profile-header">
+        <h1>내 프로필</h1>
+        
+        <!-- 저장 전에만 표시: 저장 완료 후 사라짐 -->
+        <a th:unless="${successMessage}" 
+            href="/projects" th:href="@{/projects}" 
+            class="back-link">프로필 작성 취소</a>
+    </div>
+
+    <!-- 저장 성공 시 플래시 메시지 -->
+    <div th:if="${successMessage}" class="success-banner">
+        <p th:text="${successMessage}">프로필이 저장되었습니다.</p>
+        <a href="/projects" th:href="@{/projects}" class="btn-projects">팀 찾기로 돌아가기</a>
+        
+    </div>
+
     <p>기술 스택과 활동 가능한 시간을 알려주세요.</p>
 
     <!-- POST /profile → ProfileController.save() → 성공 시 /profile로 리다이렉트 -->
