@@ -65,7 +65,7 @@ class LoginIntegrationTest {
     void loginSuccess() throws Exception {
         MvcResult result = mockMvc.perform(post("/login")
                         .with(csrf())
-                        .param("username", EMAIL)
+                        .param("email", EMAIL)
                         .param("password", PASSWORD))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/projects"))
@@ -102,7 +102,7 @@ class LoginIntegrationTest {
     void normalizedEmailLogin() throws Exception {
         mockMvc.perform(post("/login")
                         .with(csrf())
-                        .param("username", "  LOGIN@Example.COM  ")
+                        .param("email", "  LOGIN@Example.COM  ")
                         .param("password", PASSWORD))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/projects"))
@@ -114,7 +114,7 @@ class LoginIntegrationTest {
     void wrongPassword() throws Exception {
         mockMvc.perform(post("/login")
                         .with(csrf())
-                        .param("username", EMAIL)
+                        .param("email", EMAIL)
                         .param("password", "WrongPass123!"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login?error"))
@@ -126,7 +126,7 @@ class LoginIntegrationTest {
     void unknownEmail() throws Exception {
         mockMvc.perform(post("/login")
                         .with(csrf())
-                        .param("username", "unknown@example.com")
+                        .param("email", "unknown@example.com")
                         .param("password", PASSWORD))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login?error"))
@@ -146,7 +146,7 @@ class LoginIntegrationTest {
     @DisplayName("CSRF 토큰 없이 로그인 요청을 보내면 거부한다")
     void loginWithoutCsrf() throws Exception {
         mockMvc.perform(post("/login")
-                        .param("username", EMAIL)
+                        .param("email", EMAIL)
                         .param("password", PASSWORD))
                 .andExpect(status().isForbidden())
                 .andExpect(unauthenticated());
@@ -157,7 +157,7 @@ class LoginIntegrationTest {
     void logoutSuccess() throws Exception {
         MvcResult loginResult = mockMvc.perform(post("/login")
                         .with(csrf())
-                        .param("username", EMAIL)
+                        .param("email", EMAIL)
                         .param("password", PASSWORD))
                 .andExpect(authenticated())
                 .andReturn();

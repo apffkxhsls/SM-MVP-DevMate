@@ -138,6 +138,11 @@ public class Project {
         this.deadline = deadline;
     }
 
+    /** 지원자를 수락한 모집글을 마감한다. */
+    public void close() {
+        this.status = ProjectStatus.CLOSED;
+    }
+
     @PrePersist
     private void onCreate() {
         this.createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
