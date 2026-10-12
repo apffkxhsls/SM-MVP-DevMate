@@ -18,7 +18,8 @@ public class ProfileForm {
     @NotNull(message = "희망 역할을 선택해주세요.")
     private Role role;
 
-    private Set<@NotNull Skill> skills = new HashSet<>();
+    @NotEmpty(message = "보유 기술 스택을 1개 이상 선택해주세요.")
+    private Set<Skill> skills = new HashSet<>();
 
     @NotNull(message = "주당 투자 가능 시간을 입력해주세요.")
     @Min(value = 1, message = "주당 투자 가능 시간은 1시간 이상이어야 합니다.")
