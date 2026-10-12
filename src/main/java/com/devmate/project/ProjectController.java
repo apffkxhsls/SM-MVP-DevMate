@@ -8,6 +8,7 @@ import com.devmate.project.service.ProjectService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -132,6 +133,49 @@ public class ProjectController {
         model.addAttribute("profileRequired", result.profileRequired());
 
         return "project/list";
+    }
+
+    /**
+     * 작성자가 모집글을 직접 마감한다.
+     * 작성자 ID는 로그인 인증 정보에서 가져온다.
+     */
+    @PostMapping("/projects/{projectId}/close")
+    public String close(
+            @PathVariable("projectId") Long projectId,
+            @AuthenticationPrincipal MemberPrincipal principal,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (projectId <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "모집글 ID는 양수여야 합니다."
+            );
+        }
+
+        boolean closed = projectService.close(
+                projectId,
+                principal.getMemberId()
+        );
+
+        redirectAttributes.addFlashAttribute(
+                "successMessage",
+                closed
+                        ? "모집을 마감하고 남은 대기 지원을 거절했습니다."
+                        : "이미 마감된 모집글입니다."
+        );
+
+        return "redirect:/projects/" + projectId;
+    }
+
+    /**
+     * 작성자 권한이 없으면 403으로 처리한다.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public void handleAccessDenied(
+            AccessDeniedException exception,
+            jakarta.servlet.http.HttpServletResponse response
+    ) throws java.io.IOException {
+        response.sendError(HttpStatus.FORBIDDEN.value());
     }
 
     /**
