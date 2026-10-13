@@ -59,9 +59,16 @@
                 </p>
             </div>
             <div class="application-card__right">
-                <span class="status-badge">상태</span>
+                <span th:with="s=${card.status.name()}"
+                    th:class="${s == 'PENDING'} ? 'status-badge status-badge--pending'
+                        : (${s == 'ACCEPTED'} ? 'status-badge status-badge--accepted'
+                        : 'status-badge status-badge--rejected')"
+                    th:text="${s == 'PENDING'} ? '대기중' : (${s == 'ACCEPTED'} ? '수락' : '거절')">상태
+                </span>
                 <a href="/projects/1" class="application-detail-link">상세 보기</a>
             </div>
+            
+
         </div>
 
     </div>
