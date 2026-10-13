@@ -35,6 +35,11 @@
         <a href="/projects" th:href="@{/projects}" class="btn-projects">팀 찾기로 돌아가기</a>
     </div>
 
+    <div th:if="${errorMessage}" class="error-banner" role="alert">
+        <span th:text="${errorMessage}">오류 메시지</span>
+    </div>
+
+
     <!-- 제목 + 모집 중/마감 상태 뱃지 -->
     <div class="detail-header">
         <h1 class="page-title" th:text="${project.title}">프로젝트 제목</h1>
@@ -189,6 +194,20 @@
             </time>
         </div>
     </section>
+
+    <!-- ===== 지원 버튼 ===== -->
+    <!-- 모집 중 상태 + 지원하지 않은 상태 + 작성자 본인이 아닐 때만 지원하기 버튼 표시 -->
+    <form th:if="${project.recruiting and !applied and !isAuthor}"
+        th:action="@{/projects/{id}/applications(id=${project.id})}"
+        method="post">
+        <button type="submit" class="apply-btn">지원하기</button>
+    </form>
+
+    <!-- ===== 돌아가기 버튼 ===== -->
+    <a href="/projects" th:href="@{/projects}" class="back-link">
+    팀 찾기로 돌아가기
+    </a>
+
 </main>
 
 <!--
