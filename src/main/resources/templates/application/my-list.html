@@ -65,7 +65,9 @@
                         : 'status-badge status-badge--rejected')"
                     th:text="${s == 'PENDING'} ? '대기중' : (${s == 'ACCEPTED'} ? '수락' : '거절')">상태
                 </span>
-                <a href="/projects/1" class="application-detail-link">상세 보기</a>
+                <a th:href="@{/projects/{id}(id=${card.projectId})}"
+                    href="/projects/1"
+                    class="application-detail-link">상세 보기</a>
             </div>
             
 
