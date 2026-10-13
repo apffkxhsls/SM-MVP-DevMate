@@ -15,14 +15,16 @@
 <header class="site-header">
     <nav class="nav-container" aria-label="주 메뉴">
         <a class="logo" href="/projects" th:href="@{/projects}">DevMate</a>
-        <div class="nav-menu">
-            <a class="nav-link" href="/projects" th:href="@{/projects}">팀 찾기</a>
-            <a class="nav-link" href="/projects/new" th:href="@{/projects/new}">모집글 작성</a>
-            <a class="nav-link active"
-               href="/my/applications"
-               th:href="@{/my/applications}"
-               aria-current="page">내 활동</a>
-            <a class="nav-link" href="/profile" th:href="@{/profile}">내 프로필</a>
+        <div class= "nav-right">
+            <div class="nav-menu">
+                <a class="nav-link" href="/projects" th:href="@{/projects}">팀 찾기</a>
+                <a class="nav-link" href="/projects/new" th:href="@{/projects/new}">모집글 작성</a>
+                <a class="nav-link active" href="/my/applications" th:href="@{/my/applications}" aria-current="page">내 활동</a>
+                <a class="nav-link" href="/profile" th:href="@{/profile}">내 프로필</a>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="nav-logout">로그아웃</button>
+            </form>
         </div>
     </nav>
 </header>
@@ -50,7 +52,6 @@
         </p>
 
         <!-- applicationPage.content 목록에서 카드 하나씩 꺼내 반복 -->
-        <!-- 카드 제목, 정보, 상태 뱃지, 링크는 다음 단계에서 연동 예정 -->
         <div class="application-card" th:each="card : ${applicationPage.content}">
             <div class="application-card__left">
                 <h2 class="application-card__title" th:text="${card.projectTitle}">프로젝트 제목</h2>
@@ -59,12 +60,14 @@
                 </p>
             </div>
             <div class="application-card__right">
+                <!-- 상태 뱃지 -->
                 <span th:with="s=${card.status.name()}"
                     th:class="${s == 'PENDING'} ? 'status-badge status-badge--pending'
                         : (${s == 'ACCEPTED'} ? 'status-badge status-badge--accepted'
                         : 'status-badge status-badge--rejected')"
                     th:text="${s == 'PENDING'} ? '대기중' : (${s == 'ACCEPTED'} ? '수락' : '거절')">상태
                 </span>
+                <!-- 상세 보기 링크 -->
                 <a th:href="@{/projects/{id}(id=${card.projectId})}"
                     href="/projects/1"
                     class="application-detail-link">상세 보기</a>
