@@ -79,7 +79,26 @@
     </div>
 
     <!-- 페이지네이션 -->
-    <!-- 페이지네이션은 다음 단계에서 연동 예정 -->
+    <nav class="pagination" th:if="${applicationPage.totalPages > 1}" aria-label="페이지 이동">
+
+    <a class="pagination-btn"
+       th:if="${!applicationPage.first}" th:href="@{/my/applications(page=${applicationPage.number - 1})}">
+        이전
+    </a>
+
+    <span class="pagination-info"
+          th:text="${applicationPage.number + 1} + ' / ' + ${applicationPage.totalPages}">
+        1 / 3
+    </span>
+
+    <a class="pagination-btn"
+       th:if="${!applicationPage.last}" 
+       th:href="@{/my/applications(page=${applicationPage.number + 1})}">
+        다음
+    </a>
+
+</nav>
+
 
 </main>
 </body>
