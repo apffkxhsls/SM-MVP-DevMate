@@ -17,6 +17,8 @@ body {
     border: 1px solid #e5e7eb;
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    display: flex;             
+    flex-direction: column; 
 }
 
 .project-card h2 {
@@ -52,6 +54,7 @@ body {
     border: none;
     border-radius: 8px;
     cursor: pointer;
+    margin-top: auto; /* 버튼을 카드 하단에 고정 */
 }
 
 .project-card .detail-link:hover {
