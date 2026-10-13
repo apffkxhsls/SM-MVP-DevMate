@@ -32,6 +32,11 @@
             <span th:text="${successMessage}">모집글이 등록되었습니다.</span>
         </div>
 
+        <!-- 지원 오류 발생 시 오류 메시지 표시 -->
+        <div th:if="${errorMessage}" class="error-banner" role="alert">
+            <span th:text="${errorMessage}">오류 메시지</span>
+        </div>
+
         <!-- 이미 마감된 경우 안내 메시지 -->
         <div th:if="${infoMessage}" class="info-banner" role="status">
             <span th:text="${infoMessage}">이미 마감된 모집글입니다.</span>
@@ -202,6 +207,12 @@
         <form th:if="${project.recruiting and isAuthor}" th:action="@{/projects/{id}/close(id=${project.id})}"
             method="post" style="margin-top: 24px;">
             <button type="submit" class="btn-close-recruitment">모집 마감하기</button>
+        </form>
+
+        <!-- 모집 중이고, 지원하지 않았고, 작성자 본인이 아닐 때만 표시 -->
+        <form th:if="${project.recruiting and !applied and !isAuthor}"
+            th:action="@{/projects/{id}/applications(id=${project.id})}" method="post">
+            <button type="submit" class="apply-btn">지원하기</button>
         </form>
     </main>
 
