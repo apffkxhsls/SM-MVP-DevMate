@@ -11,8 +11,10 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface ApplicationRepository
         extends JpaRepository<ProjectApplication, Long> {
@@ -74,5 +76,17 @@ public interface ApplicationRepository
         """)
     Optional<Long> findAuthorIdByApplicationId(
             @Param("applicationId") Long applicationId
+    );
+
+    /** 후보 모집글 중 로그인 회원이 이미 지원한 모집글 ID를 조회한다. */
+    @Query("""
+        select a.project.id
+        from ProjectApplication a
+        where a.applicant.id = :applicantId
+          and a.project.id in :projectIds
+        """)
+    Set<Long> findAppliedProjectIds(
+            @Param("applicantId") Long applicantId,
+            @Param("projectIds") Collection<Long> projectIds
     );
 }
