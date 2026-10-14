@@ -12,18 +12,31 @@
 
 <body>
 
+<<<<<<< HEAD
     <!-- 공통 상단 네비게이션 (style.css) -->
     <header class="site-header">
         <nav class="nav-container" aria-label="주 메뉴">
             <a class="logo" href="/projects" th:href="@{/projects}">DevMate</a>
+=======
+<!-- 공통 상단 네비게이션 (style.css) -->
+<header class="site-header">
+    <nav class="nav-container" aria-label="주 메뉴">
+        <a class="logo" href="/projects" th:href="@{/projects}">DevMate</a>
+        <div class="nav-right">
+>>>>>>> 114be0d ([feat/#43] 모집글 상세 페이지 로그아웃 버튼 추가)
             <div class="nav-menu">
                 <a class="nav-link" href="/projects" th:href="@{/projects}">팀 찾기</a>
                 <a class="nav-link" href="/projects/new" th:href="@{/projects/new}">모집글 작성</a>
                 <a class="nav-link" href="/my/applications" th:href="@{/my/applications}">내 활동</a>
                 <a class="nav-link" href="/profile" th:href="@{/profile}">내 프로필</a>
             </div>
-        </nav>
-    </header>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="nav-logout">로그아웃</button>
+            </form>
+        </div>  
+    </nav>
+</header>
+>>>>>>> 114be0d ([feat/#43] 모집글 상세 페이지 로그아웃 버튼 추가)
 
     <main class="page-content project-detail-page">
 
