@@ -48,13 +48,9 @@
            aria-current="page">내 모집글</a>
     </div>
 
-    <!-- 모집글 카드 목록 -->
-    <!-- 백엔드 연동 시: th:if="${!projectPage.empty}" 조건 추가 -->
+    <!-- projectPage.content 목록에서 카드 하나씩 꺼내 반복 -->
     <div class="my-project-list">
-
-        <!-- 목업: 지원자 있는 카드 -->
-        <!-- 백엔드 연동 시: th:each="card : ${projectPage.content}" -->
-        <div class="my-project-card">
+        <div class="my-project-card" th:each="card : ${projectPage.content}">
             <div class="my-project-card__header">
                 <!-- 백엔드 연동 시: th:class 로 상태 분기 -->
                 <span class="status-badge status-badge--open">모집 중</span>
@@ -71,58 +67,14 @@
 
             <!-- 지원자 섹션 -->
             <div class="applicant-section">
-                <!-- 백엔드 연동 시: th:text="${card.applicantCount} + '명'" -->
                 <p class="applicant-section__count">지원자 2명</p>
-                <ul class="applicant-list">
-                    <!-- 백엔드 연동 시: th:each="applicant : ${card.applicants}" -->
-                    <li class="applicant-item">
-                        <!-- 백엔드 연동 시: th:text="${applicant.name}" -->
-                        <span class="applicant-name">김민준</span>
-                        <div class="applicant-actions">
-                            <!-- 백엔드 연동 시: PATCH /applications/{id}/accept -->
-                            <button type="button" class="btn-accept">수락</button>
-                            <!-- 백엔드 연동 시: PATCH /applications/{id}/reject -->
-                            <button type="button" class="btn-reject">거절</button>
-                        </div>
-                    </li>
-                    <li class="applicant-item">
-                        <span class="applicant-name">이서연</span>
-                        <div class="applicant-actions">
-                            <button type="button" class="btn-accept">수락</button>
-                            <button type="button" class="btn-reject">거절</button>
-                        </div>
-                    </li>
-                </ul>
-                <div class="applicant-section__footer">
-                    <!-- 백엔드 연동 시: PATCH /projects/{id}/close -->
-                    <button type="button" class="btn-close-recruitment">모집 마감</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 목업: 지원자 없는 카드 -->
-        <div class="my-project-card">
-            <div class="my-project-card__header">
-                <span class="status-badge status-badge--open">모집 중</span>
-                <h2 class="my-project-card__title">모바일 쇼핑 앱</h2>
-                <p class="my-project-card__meta">
-                    <span>Android</span>
-                    <span class="info-dot">·</span>
-                    <span>Kotlin</span>
-                    <span class="info-dot">·</span>
-                    <span>마감 2026.12.15</span>
-                </p>
-            </div>
-            <div class="applicant-section">
-                <p class="applicant-section__count">지원자 0명</p>
-                <p class="applicant-section__empty">아직 지원자가 없습니다.</p>
                 <div class="applicant-section__footer">
                     <button type="button" class="btn-close-recruitment">모집 마감</button>
                 </div>
             </div>
         </div>
-
     </div>
+
 
     <!-- 모집글 없을 때 -->
     <!-- 백엔드 연동 시: th:if="${projectPage.totalElements == 0}" 로 조건 처리 -->
