@@ -72,12 +72,11 @@
                     <span th:text="'마감 ' + ${#temporals.format(card.deadline, 'yyyy.MM.dd HH:mm')}">마감 2026.11.30</span>
                 </p>
             </div>
-            <!-- 지원자 섹션 -->
+            <!-- 지원자 관리 페이지로 이동하는 링크 -->
             <div class="applicant-section">
-                <p class="applicant-section__count">지원자 2명</p>
-                <div class="applicant-section__footer">
-                    <button type="button" class="btn-close-recruitment">모집 마감</button>
-                </div>
+            <a th:href="@{/projects/{id}/applications(id=${card.id})}"
+                href="/projects/1/applications"
+                class="btn-view-applicants">지원자 보기</a>
             </div>
         </div>
     </div>
