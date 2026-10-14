@@ -51,20 +51,27 @@
     <!-- projectPage.content 목록에서 카드 하나씩 꺼내 반복 -->
     <div class="my-project-list">
         <div class="my-project-card" th:each="card : ${projectPage.content}">
+            <!-- 카드 상단: 상태 뱃지 · 제목 · 역할 · 마감일 -->
             <div class="my-project-card__header">
-                <!-- 백엔드 연동 시: th:class 로 상태 분기 -->
-                <span class="status-badge status-badge--open">모집 중</span>
-                <!-- 백엔드 연동 시: th:text="${card.title}" -->
-                <h2 class="my-project-card__title">AI 기반 일정 관리 서비스</h2>
+                <!-- card.recruiting 으로 모집 중/마감 분기 -->
+                <span th:class="${card.recruiting} ? 'status-badge status-badge--open' : 'status-badge status-badge--closed'"
+                      th:text="${card.recruiting} ? '모집 중' : '모집 마감'">모집 중</span>
+                <!-- 모집글 제목 -->
+                <h2 class="my-project-card__title" th:text="${card.title}">AI 기반 일정 관리 서비스</h2>
                 <p class="my-project-card__meta">
-                    <span>프론트엔드</span>
+                    <!-- 역할 enum → 한국어 변환 -->
+                    <span th:switch="${card.role.name()}">
+                        <span th:case="'FRONTEND'">프론트엔드</span>
+                        <span th:case="'BACKEND'">백엔드</span>
+                        <span th:case="'ANDROID'">Android</span>
+                        <span th:case="'IOS'">iOS</span>
+                        <span th:case="'AI'">AI</span>
+                    </span>
                     <span class="info-dot">·</span>
-                    <span>React</span>
-                    <span class="info-dot">·</span>
-                    <span>마감 2026.11.30</span>
+                    <!-- 마감일 포맷: yyyy.MM.dd HH:mm -->
+                    <span th:text="'마감 ' + ${#temporals.format(card.deadline, 'yyyy.MM.dd HH:mm')}">마감 2026.11.30</span>
                 </p>
             </div>
-
             <!-- 지원자 섹션 -->
             <div class="applicant-section">
                 <p class="applicant-section__count">지원자 2명</p>
