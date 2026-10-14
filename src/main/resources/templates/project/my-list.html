@@ -15,14 +15,21 @@
 <header class="site-header">
     <nav class="nav-container" aria-label="주 메뉴">
         <a class="logo" href="/projects" th:href="@{/projects}">DevMate</a>
-        <div class="nav-menu">
-            <a class="nav-link" href="/projects" th:href="@{/projects}">팀 찾기</a>
-            <a class="nav-link" href="/projects/new" th:href="@{/projects/new}">모집글 작성</a>
-            <a class="nav-link active"
-               href="/my/applications"
-               th:href="@{/my/applications}"
-               aria-current="page">내 활동</a>
-            <a class="nav-link" href="/profile" th:href="@{/profile}">내 프로필</a>
+        <!-- 메뉴와 로그아웃 버튼을 가로로 묶는 래퍼 -->
+        <div class="nav-right">
+            <div class="nav-menu">
+                <a class="nav-link" href="/projects" th:href="@{/projects}">팀 찾기</a>
+                <a class="nav-link" href="/projects/new" th:href="@{/projects/new}">모집글 작성</a>
+                <a class="nav-link active"
+                   href="/my/applications"
+                   th:href="@{/my/applications}"
+                   aria-current="page">내 활동</a>
+                <a class="nav-link" href="/profile" th:href="@{/profile}">내 프로필</a>
+            </div>
+            <!-- CSRF 토큰은 th:action이 자동으로 추가 -->
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="nav-logout">로그아웃</button>
+            </form>
         </div>
     </nav>
 </header>
