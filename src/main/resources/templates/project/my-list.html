@@ -87,7 +87,20 @@
 
 
     <!-- 페이지네이션 -->
-    <!-- 백엔드 연동 시: project/list.html 의 pagination 패턴 그대로 적용 -->
+    <!-- 페이지가 2개 이상일 때만 페이지네이션 표시 -->
+    <nav class="pagination" th:if="${projectPage.totalPages > 1}" aria-label="페이지 이동">
+        <!-- 첫 페이지가 아닐 때만 이전 버튼 표시 -->
+        <a class="pagination-btn"
+        th:if="${!projectPage.first}"
+        th:href="@{/my/projects(page=${projectPage.number - 1})}">이전</a>
+        <!-- 현재 페이지 / 전체 페이지 -->
+        <span class="pagination-info"
+            th:text="${projectPage.number + 1} + ' / ' + ${projectPage.totalPages}">1 / 3</span>
+        <!-- 마지막 페이지가 아닐 때만 다음 버튼 표시 -->
+        <a class="pagination-btn"
+        th:if="${!projectPage.last}"
+        th:href="@{/my/projects(page=${projectPage.number + 1})}">다음</a>
+    </nav>
 
 </main>
 </body>
