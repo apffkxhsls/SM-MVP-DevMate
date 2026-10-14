@@ -371,6 +371,50 @@ class ProjectControllerTest {
         verifyNoInteractions(projectService);
     }
 
+    @Test
+    @DisplayName("이미 지원한 다른 회원의 글에는 applied만 true로 전달한다")
+    void detailForAppliedMember() throws Exception {
+        ProjectView project = mock(ProjectView.class);
+        when(project.authorId()).thenReturn(2L);
+        when(projectService.getProject(10L)).thenReturn(project);
+        when(projectService.hasApplied(10L, 1L)).thenReturn(true);
+
+        mockMvc.perform(get("/projects/10"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("applied", true))
+                .andExpect(model().attribute("isAuthor", false));
+
+        verify(projectService).hasApplied(10L, 1L);
+    }
+
+    @Test
+    @DisplayName("본인이 작성한 글에는 isAuthor를 true로 전달한다")
+    void detailForAuthor() throws Exception {
+        ProjectView project = mock(ProjectView.class);
+        when(project.authorId()).thenReturn(1L);
+        when(projectService.getProject(10L)).thenReturn(project);
+        when(projectService.hasApplied(10L, 1L)).thenReturn(false);
+
+        mockMvc.perform(get("/projects/10"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("applied", false))
+                .andExpect(model().attribute("isAuthor", true));
+    }
+
+    @Test
+    @DisplayName("지원하지 않은 다른 회원의 글에는 두 값을 false로 전달한다")
+    void detailForUnappliedMember() throws Exception {
+        ProjectView project = mock(ProjectView.class);
+        when(project.authorId()).thenReturn(2L);
+        when(projectService.getProject(10L)).thenReturn(project);
+        when(projectService.hasApplied(10L, 1L)).thenReturn(false);
+
+        mockMvc.perform(get("/projects/10"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("applied", false))
+                .andExpect(model().attribute("isAuthor", false));
+    }
+
     private MockHttpServletRequestBuilder validRequest() {
         return post("/projects")
                 .param("title", "백엔드 팀원 모집")

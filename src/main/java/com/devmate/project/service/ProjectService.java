@@ -1,5 +1,6 @@
 package com.devmate.project.service;
 
+import com.devmate.application.repository.ApplicationRepository;
 import com.devmate.member.Member;
 import com.devmate.member.repository.MemberRepository;
 import com.devmate.project.Project;
@@ -31,13 +32,16 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
+    private final ApplicationRepository applicationRepository;
 
     public ProjectService(
             ProjectRepository projectRepository,
-            MemberRepository memberRepository
+            MemberRepository memberRepository,
+            ApplicationRepository applicationRepository
     ) {
         this.projectRepository = projectRepository;
         this.memberRepository = memberRepository;
+        this.applicationRepository = applicationRepository;
     }
 
     /**
@@ -105,6 +109,20 @@ public class ProjectService {
                         pageRequest(page)
                 )
                 .map(project -> ProjectView.from(project, now));
+    }
+
+    /**
+     * 로그인 회원의 지원 이력 여부를 확인한다.
+     * 거절된 지원도 재지원할 수 없으므로 모든 상태를 포함한다.
+     */
+    public boolean hasApplied(
+            @NotNull @Positive Long projectId,
+            @NotNull @Positive Long memberId
+    ) {
+        return applicationRepository.existsByProject_IdAndApplicant_Id(
+                projectId,
+                memberId
+        );
     }
 
     private Member findMember(Long memberId) {
