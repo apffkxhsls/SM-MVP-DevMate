@@ -32,6 +32,7 @@
     <!-- 모집글 등록 성공 시 플래시 메시지 (ProjectController → RedirectAttributes) -->
     <div th:if="${successMessage}" class="success-banner" role="status">
         <span th:text="${successMessage}">모집글이 등록되었습니다.</span>
+        <a href="/projects" th:href="@{/projects}" class="btn-projects">팀 찾기로 돌아가기</a>
     </div>
 
     <!-- 제목 + 모집 중/마감 상태 뱃지 -->
@@ -188,11 +189,6 @@
             </time>
         </div>
     </section>
-    <!-- ===== 돌아가기 버튼 ===== -->
-    <a href="/projects" th:href="@{/projects}" class="back-link">
-    팀 찾기로 돌아가기
-    </a>
-
 </main>
 
 <!--
