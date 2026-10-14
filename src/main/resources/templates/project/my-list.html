@@ -48,17 +48,6 @@
            aria-current="page">내 모집글</a>
     </div>
 
-    <!-- 모집 중 / 모집 마감 탭 전환 -->
-    <!-- 백엔드 연동 시: selectedStatus 로 활성 탭 분기 -->
-    <div class="project-status-tabs">
-        <a class="project-status-tab project-status-tab--active"
-           href="/my/projects?status=OPEN"
-           th:href="@{/my/projects(status='OPEN')}">모집 중</a>
-        <a class="project-status-tab"
-           href="/my/projects?status=CLOSED"
-           th:href="@{/my/projects(status='CLOSED')}">모집 마감</a>
-    </div>
-
     <!-- 모집글 카드 목록 -->
     <!-- 백엔드 연동 시: th:if="${!projectPage.empty}" 조건 추가 -->
     <div class="my-project-list">
