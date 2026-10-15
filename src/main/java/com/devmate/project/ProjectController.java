@@ -157,14 +157,20 @@ public class ProjectController {
                 principal.getMemberId()
         );
 
-        redirectAttributes.addFlashAttribute(
-                "successMessage",
-                closed
-                        ? "모집을 마감하고 남은 대기 지원을 거절했습니다."
-                        : "이미 마감된 모집글입니다."
-        );
+        if (closed) {
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "모집을 마감하고 남은 대기 지원을 거절했습니다."
+            );
+        } else {
+            redirectAttributes.addFlashAttribute(
+                    "infoMessage",
+                    "이미 마감된 모집글입니다."
+            );
+        }
 
         return "redirect:/projects/" + projectId;
+
     }
 
     /**

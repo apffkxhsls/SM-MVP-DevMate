@@ -391,16 +391,17 @@ class ProjectControllerTest {
     }
 
     @Test
-    @DisplayName("이미 마감된 경우 상태를 안내한다")
+    @DisplayName("이미 마감된 경우 일반 안내 메시지를 전달한다")
     void alreadyClosedShowsMessage() throws Exception {
         when(projectService.close(10L, 1L)).thenReturn(false);
 
         mockMvc.perform(post("/projects/10/close"))
                 .andExpect(redirectedUrl("/projects/10"))
                 .andExpect(flash().attribute(
-                        "successMessage",
+                        "infoMessage",
                         "이미 마감된 모집글입니다."
-                ));
+                ))
+                .andExpect(flash().attributeCount(1));
     }
 
     @Test
