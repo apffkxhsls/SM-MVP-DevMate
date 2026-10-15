@@ -150,20 +150,6 @@
     border-radius: 0 0 16px 16px;
 }
 
-.applicant-section__count {
-    margin: 0 0 12px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #374151;
-}
-
-/* 지원자 없을 때 안내 문구 */
-.applicant-section__empty {
-    margin: 0 0 12px;
-    font-size: 14px;
-    color: #9ca3af;
-}
-
 /* ===== 지원자 목록 ===== */
 .applicant-list {
     list-style: none;
@@ -229,30 +215,6 @@
     background-color: #fee2e2;
 }
 
-/* ===== 지원자 섹션 하단 — 모집 마감 버튼 ===== */
-.applicant-section__footer {
-    display: flex;
-    justify-content: flex-end;
-}
-
-/* 모집 마감 버튼 */
-.btn-close-recruitment {
-    padding: 8px 20px;
-    font: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    color: #6b7280;
-    background-color: #ffffff;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.btn-close-recruitment:hover {
-    border-color: #4f46e5;
-    color: #4f46e5;
-}
-
 /* ===== 빈 상태 ===== */
 .empty-state {
     padding: 48px 0;
@@ -260,6 +222,59 @@
     font-size: 14px;
     font-weight: 600;
     text-align: center;
+}
+/* ===== 지원자 보기 페이지 관련 ===== */
+
+/* ===== 돌아가기 링크 ===== */
+.back-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #6b7280;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    color: #4f46e5;
+}
+
+/* ===== 성공/오류 배너 ===== */
+.success-banner {
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    color: #15803d;
+    background-color: #dcfce7;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.error-banner {
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    color: #991b1b;
+    background-color: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ===== 상태 뱃지 (지원자 목록용) ===== */
+.status-badge--pending {
+    color: #92400e;
+    background-color: #fef3c7;
+}
+
+.status-badge--accepted {
+    color: #166534;
+    background-color: #dcfce7;
+}
+
+.status-badge--rejected {
+    color: #6b7280;
+    background-color: #f3f4f6;
 }
 
 /* ===== 모바일 ===== */
