@@ -11,7 +11,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -103,5 +103,57 @@ class ProjectSecurityTest {
         }
 
         verifyNoInteractions(projectService, recommendationService);
+    }
+
+    @Test
+    @DisplayName("비로그인 사용자는 직접 마감할 수 없다")
+    void anonymousCloseRedirectsToLogin() throws Exception {
+        mockMvc.perform(post("/projects/10/close").with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
+
+        verifyNoInteractions(projectService);
+    }
+
+    @Test
+    @DisplayName("CSRF가 없으면 직접 마감할 수 없다")
+    void closeWithoutCsrfReturns403() throws Exception {
+        MemberPrincipal principal =
+                new MemberPrincipal(1L, "member@example.com", null);
+
+        mockMvc.perform(post("/projects/10/close").with(user(principal)))
+                .andExpect(status().isForbidden());
+
+        verifyNoInteractions(projectService);
+    }
+
+    @Test
+    @DisplayName("잘못된 CSRF로 직접 마감할 수 없다")
+    void closeWithInvalidCsrfReturns403() throws Exception {
+        MemberPrincipal principal =
+                new MemberPrincipal(1L, "member@example.com", null);
+
+        mockMvc.perform(post("/projects/10/close")
+                        .with(user(principal))
+                        .with(csrf().useInvalidToken()))
+                .andExpect(status().isForbidden());
+
+        verifyNoInteractions(projectService);
+    }
+
+    @Test
+    @DisplayName("로그인과 CSRF가 있으면 마감 서비스를 호출한다")
+    void authenticatedCloseWithCsrfCallsService() throws Exception {
+        MemberPrincipal principal =
+                new MemberPrincipal(1L, "member@example.com", null);
+
+        when(projectService.close(10L, 1L)).thenReturn(true);
+
+        mockMvc.perform(post("/projects/10/close")
+                        .with(user(principal))
+                        .with(csrf()))
+                .andExpect(redirectedUrl("/projects/10"));
+
+        verify(projectService).close(10L, 1L);
     }
 }

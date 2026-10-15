@@ -1,5 +1,8 @@
 package com.devmate.project.service;
 
+import com.devmate.application.ApplicationStatus;
+import com.devmate.application.ProjectApplication;
+import com.devmate.application.repository.ApplicationRepository;
 import com.devmate.common.enums.*;
 import com.devmate.member.Member;
 import com.devmate.member.repository.MemberRepository;
@@ -16,6 +19,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 
 import java.time.LocalDateTime;
@@ -49,6 +53,9 @@ class ProjectServiceTest {
 
     @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
 
     @Autowired
     private EntityManager entityManager;
@@ -235,6 +242,165 @@ class ProjectServiceTest {
     private Long createMember(String email) {
         return memberRepository.saveAndFlush(
                 new Member(email, "test-hash", "테스트회원")
+        ).getId();
+    }
+
+    @Test
+    @DisplayName("직접 마감하면 대기 지원만 거절한다")
+    void closeRejectsPendingApplications() {
+        Long authorId = createMember("close-author@example.com");
+        Long projectId = projectService.create(authorId, validForm());
+
+        Long firstId = createApplication(projectId, "pending1@example.com");
+        Long secondId = createApplication(projectId, "pending2@example.com");
+        Long rejectedId = createApplication(projectId, "rejected@example.com");
+
+        LocalDateTime previousDecision = LocalDateTime.of(2026, 1, 1, 12, 0);
+        applicationRepository.findById(rejectedId).orElseThrow()
+                .reject(previousDecision);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        assertThat(projectService.close(projectId, authorId)).isTrue();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        assertThat(projectRepository.findById(projectId).orElseThrow().getStatus())
+                .isEqualTo(ProjectStatus.CLOSED);
+
+        ProjectApplication first = applicationRepository.findById(firstId)
+                .orElseThrow();
+        ProjectApplication second = applicationRepository.findById(secondId)
+                .orElseThrow();
+        ProjectApplication rejected = applicationRepository.findById(rejectedId)
+                .orElseThrow();
+
+        assertThat(first.getStatus()).isEqualTo(ApplicationStatus.REJECTED);
+        assertThat(second.getStatus()).isEqualTo(ApplicationStatus.REJECTED);
+        assertThat(first.getDecidedAt()).isNotNull();
+        assertThat(second.getDecidedAt()).isEqualTo(first.getDecidedAt());
+
+        // 기존 거절 내역의 처리 시각은 덮어쓰지 않는다.
+        assertThat(rejected.getStatus()).isEqualTo(ApplicationStatus.REJECTED);
+        assertThat(rejected.getDecidedAt()).isEqualTo(previousDecision);
+    }
+
+    @Test
+    @DisplayName("지원자가 없어도 직접 마감할 수 있다")
+    void closeWithoutApplicants() {
+        Long authorId = createMember("empty-close@example.com");
+        Long projectId = projectService.create(authorId, validForm());
+
+        assertThat(projectService.close(projectId, authorId)).isTrue();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        assertThat(projectService.getProject(projectId).status())
+                .isEqualTo(ProjectStatus.CLOSED);
+    }
+
+    @Test
+    @DisplayName("기한이 지났어도 OPEN이면 직접 마감한다")
+    void closeAfterDeadline() {
+        Long authorId = createMember("expired-close@example.com");
+        Long projectId = projectService.create(authorId, validForm());
+
+        // 등록 후 시간이 지나 지원 기한이 경과한 상황을 만든다.
+        entityManager.createQuery(
+                        "update Project p set p.deadline = :deadline where p.id = :id"
+                )
+                .setParameter(
+                        "deadline",
+                        LocalDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(1)
+                )
+                .setParameter("id", projectId)
+                .executeUpdate();
+        entityManager.clear();
+
+        assertThat(projectService.close(projectId, authorId)).isTrue();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        assertThat(projectService.getProject(projectId).status())
+                .isEqualTo(ProjectStatus.CLOSED);
+    }
+
+    @Test
+    @DisplayName("이미 마감된 모집글은 수락 내역을 변경하지 않는다")
+    void alreadyClosedPreservesAcceptedApplication() {
+        Long authorId = createMember("closed-author@example.com");
+        Long projectId = projectService.create(authorId, validForm());
+        Long applicationId = createApplication(
+                projectId, "accepted@example.com"
+        );
+
+        LocalDateTime previousDecision = LocalDateTime.of(2026, 1, 1, 12, 0);
+        applicationRepository.findById(applicationId).orElseThrow()
+                .accept(previousDecision);
+        projectRepository.findById(projectId).orElseThrow().close();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        assertThat(projectService.close(projectId, authorId)).isFalse();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        ProjectApplication saved = applicationRepository.findById(applicationId)
+                .orElseThrow();
+
+        assertThat(saved.getStatus()).isEqualTo(ApplicationStatus.ACCEPTED);
+        assertThat(saved.getDecidedAt()).isEqualTo(previousDecision);
+    }
+
+    @Test
+    @DisplayName("다른 회원은 직접 마감할 수 없다")
+    void rejectCloseByNonAuthor() {
+        Long authorId = createMember("owner@example.com");
+        Long otherId = createMember("not-owner@example.com");
+        Long projectId = projectService.create(authorId, validForm());
+        Long applicationId = createApplication(
+                projectId, "waiting@example.com"
+        );
+
+        entityManager.clear();
+
+        assertThatThrownBy(() -> projectService.close(projectId, otherId))
+                .isInstanceOf(AccessDeniedException.class);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        assertThat(projectService.getProject(projectId).status())
+                .isEqualTo(ProjectStatus.OPEN);
+        assertThat(applicationRepository.findById(applicationId)
+                .orElseThrow().getStatus())
+                .isEqualTo(ApplicationStatus.PENDING);
+    }
+
+    @Test
+    @DisplayName("없는 모집글은 마감할 수 없다")
+    void rejectCloseForMissingProject() {
+        Long authorId = createMember("missing-close@example.com");
+
+        assertThatThrownBy(() ->
+                projectService.close(Long.MAX_VALUE, authorId)
+        ).isInstanceOf(EntityNotFoundException.class);
+    }
+
+    private Long createApplication(Long projectId, String email) {
+        Long applicantId = createMember(email);
+
+        return applicationRepository.saveAndFlush(
+                new ProjectApplication(
+                        projectRepository.findById(projectId).orElseThrow(),
+                        memberRepository.findById(applicantId).orElseThrow()
+                )
         ).getId();
     }
 
