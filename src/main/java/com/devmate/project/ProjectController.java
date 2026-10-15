@@ -67,11 +67,12 @@ public class ProjectController {
     }
 
     /**
-     * 모집글 상세 정보를 조회한다.
+     * 모집글 상세와 로그인 회원의 지원·작성자 여부를 전달한다.
      */
     @GetMapping("/projects/{projectId}")
     public String detail(
-            @PathVariable Long projectId,
+            @PathVariable("projectId") Long projectId,
+            @AuthenticationPrincipal MemberPrincipal principal,
             Model model
     ) {
         if (projectId <= 0) {
@@ -81,9 +82,17 @@ public class ProjectController {
             );
         }
 
+        var project = projectService.getProject(projectId);
+        Long memberId = principal.getMemberId();
+
+        model.addAttribute("project", project);
         model.addAttribute(
-                "project",
-                projectService.getProject(projectId)
+                "applied",
+                projectService.hasApplied(projectId, memberId)
+        );
+        model.addAttribute(
+                "isAuthor",
+                memberId.equals(project.authorId())
         );
 
         return "project/detail";

@@ -2,6 +2,7 @@ package com.devmate.profile;
 
 import com.devmate.common.enums.ProjectGoal;
 import com.devmate.common.enums.Role;
+import com.devmate.common.enums.Skill;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
@@ -186,11 +187,23 @@ class ProfileFormTest {
                 .contains("region", "portfolioUrl", "introduction");
     }
 
+    @Test
+    @DisplayName("기술 스택을 선택하지 않으면 검증에 실패한다")
+    void rejectEmptySkills() {
+        ProfileForm form = validForm();
+        form.setSkills(Set.of());
+
+        assertThat(validator.validate(form))
+                .extracting(violation -> violation.getPropertyPath().toString())
+                .contains("skills");
+    }
+
     private ProfileForm validForm() {
         ProfileForm form = new ProfileForm();
         form.setRole(Role.BACKEND);
         form.setWeeklyHours(10);
         form.setAvailableSlots(Set.of(19, 20, 21));
+        form.setSkills(Set.of(Skill.JAVA));
         form.setGoal(ProjectGoal.PORTFOLIO);
         return form;
     }
