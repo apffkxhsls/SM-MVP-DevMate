@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 @Configuration
 public class SecurityConfig {
@@ -50,12 +51,20 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .exceptionHandling(exception -> exception
-                        .defaultAuthenticationEntryPointFor(
-                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                                request -> "GET".equals(request.getMethod())
-                                        && request.getServletPath()
-                                        .matches("/members/[^/]+/profile")
-                        )
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            boolean applicantProfileApi =
+                                    "GET".equals(request.getMethod())
+                                            && request.getServletPath()
+                                            .matches("/members/[^/]+/profile");
+
+                            if (applicantProfileApi) {
+                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
+                                        .commence(request, response, authException);
+                            } else {
+                                new LoginUrlAuthenticationEntryPoint("/login")
+                                        .commence(request, response, authException);
+                            }
+                        })
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login?logout")
