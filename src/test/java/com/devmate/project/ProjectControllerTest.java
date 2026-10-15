@@ -16,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
@@ -368,6 +369,69 @@ class ProjectControllerTest {
         verify(recommendationService)
                 .getRecommendations(1L, MatchStatus.PASS, 0);
         verifyNoMoreInteractions(recommendationService);
+        verifyNoInteractions(projectService);
+    }
+
+    @Test
+    @DisplayName("직접 마감하면 상세로 이동하고 성공 메시지를 전달한다")
+    void closeRedirectsWithSuccessMessage() throws Exception {
+        when(projectService.close(10L, 1L)).thenReturn(true);
+
+        mockMvc.perform(post("/projects/10/close")
+                        .param("authorId", "999"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/projects/10"))
+                .andExpect(flash().attribute(
+                        "successMessage",
+                        "모집을 마감하고 남은 대기 지원을 거절했습니다."
+                ));
+
+        // 요청으로 보낸 authorId가 아닌 로그인 회원 ID를 사용한다.
+        verify(projectService).close(10L, 1L);
+    }
+
+    @Test
+    @DisplayName("이미 마감된 경우 일반 안내 메시지를 전달한다")
+    void alreadyClosedShowsMessage() throws Exception {
+        when(projectService.close(10L, 1L)).thenReturn(false);
+
+        mockMvc.perform(post("/projects/10/close"))
+                .andExpect(redirectedUrl("/projects/10"))
+                .andExpect(flash().attribute(
+                        "infoMessage",
+                        "이미 마감된 모집글입니다."
+                ))
+                .andExpect(flash().attributeCount(1));
+    }
+
+    @Test
+    @DisplayName("마감 권한이 없으면 403이다")
+    void closeForbiddenReturns403() throws Exception {
+        when(projectService.close(10L, 1L))
+                .thenThrow(new AccessDeniedException("작성자만 마감 가능"));
+
+        mockMvc.perform(post("/projects/10/close"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("마감할 모집글이 없으면 404이다")
+    void closeMissingProjectReturns404() throws Exception {
+        when(projectService.close(10L, 1L))
+                .thenThrow(new EntityNotFoundException("모집글 없음"));
+
+        mockMvc.perform(post("/projects/10/close"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("잘못된 마감 요청 ID는 400이다")
+    void closeInvalidIdReturns400() throws Exception {
+        for (String id : new String[]{"0", "-1", "abc"}) {
+            mockMvc.perform(post("/projects/" + id + "/close"))
+                    .andExpect(status().isBadRequest());
+        }
+
         verifyNoInteractions(projectService);
     }
 

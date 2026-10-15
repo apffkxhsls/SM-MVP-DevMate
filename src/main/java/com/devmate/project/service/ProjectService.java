@@ -1,5 +1,9 @@
 package com.devmate.project.service;
 
+import com.devmate.application.repository.ApplicationRepository;
+import com.devmate.application.ApplicationStatus;
+import com.devmate.application.repository.ApplicationRepository;
+import com.devmate.common.enums.ProjectStatus;
 import com.devmate.member.Member;
 import com.devmate.member.repository.MemberRepository;
 import com.devmate.project.Project;
@@ -14,6 +18,7 @@ import jakarta.validation.constraints.Positive;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -31,13 +36,16 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
+    private final ApplicationRepository applicationRepository;
 
     public ProjectService(
             ProjectRepository projectRepository,
-            MemberRepository memberRepository
+            MemberRepository memberRepository,
+            ApplicationRepository applicationRepository
     ) {
         this.projectRepository = projectRepository;
         this.memberRepository = memberRepository;
+        this.applicationRepository = applicationRepository;
     }
 
     /**
@@ -69,6 +77,50 @@ public class ProjectService {
         );
 
         return projectRepository.saveAndFlush(project).getId();
+    }
+
+    /**
+     * 작성자가 모집글을 직접 마감하고 남은 대기 지원을 거절한다.
+     *
+     * @return 이번 요청으로 마감했으면 true, 이미 마감 상태이면 false
+     */
+    @Transactional
+    public boolean close(
+            @NotNull @Positive Long projectId,
+            @NotNull @Positive Long authorId
+    ) {
+        // 지원·수락·거절과 동일하게 모집글부터 잠근다.
+        Project project = projectRepository.findByIdForUpdate(projectId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("모집글을 찾을 수 없습니다.")
+                );
+
+        if (!project.getAuthor().getId().equals(authorId)) {
+            throw new AccessDeniedException(
+                    "모집글 작성자만 모집을 마감할 수 있습니다."
+            );
+        }
+
+        // 이미 마감된 경우 기존 지원 상태도 변경하지 않는다.
+        if (project.getStatus() == ProjectStatus.CLOSED) {
+            return false;
+        }
+
+        LocalDateTime now = LocalDateTime.now(KOREA_ZONE);
+
+        var pendingApplications =
+                applicationRepository.findByProject_IdAndStatus(
+                        projectId,
+                        ApplicationStatus.PENDING
+                );
+
+        project.close();
+
+        pendingApplications.forEach(application ->
+                application.reject(now)
+        );
+
+        return true;
     }
 
     /** 전체 모집글을 최신순으로 조회한다. 페이지 번호는 0부터 시작한다. */
@@ -105,6 +157,20 @@ public class ProjectService {
                         pageRequest(page)
                 )
                 .map(project -> ProjectView.from(project, now));
+    }
+
+    /**
+     * 로그인 회원의 지원 이력 여부를 확인한다.
+     * 거절된 지원도 재지원할 수 없으므로 모든 상태를 포함한다.
+     */
+    public boolean hasApplied(
+            @NotNull @Positive Long projectId,
+            @NotNull @Positive Long memberId
+    ) {
+        return applicationRepository.existsByProject_IdAndApplicant_Id(
+                projectId,
+                memberId
+        );
     }
 
     private Member findMember(Long memberId) {

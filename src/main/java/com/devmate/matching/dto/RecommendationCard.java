@@ -19,7 +19,8 @@ public record RecommendationCard(
         String region,
         LocalDateTime deadline,
         LocalDateTime createdAt,
-        MatchResult match
+        MatchResult match,
+        boolean applied
 ) {
     public RecommendationCard {
         requiredSkills = Set.copyOf(requiredSkills);
@@ -28,7 +29,8 @@ public record RecommendationCard(
 
     public static RecommendationCard from(
             Project project,
-            MatchResult match
+            MatchResult match,
+            boolean applied
     ) {
         return new RecommendationCard(
                 project.getId(),
@@ -40,7 +42,8 @@ public record RecommendationCard(
                 project.getRegion(),
                 project.getDeadline(),
                 project.getCreatedAt(),
-                match
+                match,
+                applied
         );
     }
 }

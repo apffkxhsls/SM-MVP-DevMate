@@ -1,5 +1,6 @@
 package com.devmate.matching.service;
 
+import com.devmate.application.repository.ApplicationRepository;
 import com.devmate.common.enums.ProjectStatus;
 import com.devmate.matching.MatchResult;
 import com.devmate.matching.MatchStatus;
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Validated
@@ -37,18 +39,21 @@ public class RecommendationService {
     private final MemberRepository memberRepository;
     private final ProfileRepository profileRepository;
     private final ProjectRepository projectRepository;
+    private final ApplicationRepository applicationRepository;
     private final MatchingService matchingService;
 
     public RecommendationService(
             MemberRepository memberRepository,
             ProfileRepository profileRepository,
             ProjectRepository projectRepository,
-            MatchingService matchingService
+            MatchingService matchingService,
+            ApplicationRepository applicationRepository
     ) {
         this.memberRepository = memberRepository;
         this.profileRepository = profileRepository;
         this.projectRepository = projectRepository;
         this.matchingService = matchingService;
+        this.applicationRepository = applicationRepository;
     }
 
     public RecommendationResult getRecommendations(
@@ -67,7 +72,7 @@ public class RecommendationService {
 
         if (profile == null) {
             return new RecommendationResult(
-                    Page.<RecommendationCard>empty(pageable),
+                    Page.empty(pageable),
                     status,
                     true
             );
@@ -82,12 +87,27 @@ public class RecommendationService {
                         now
                 );
 
+        List<Long> candidateIds = candidates.stream()
+                .map(Project::getId)
+                .toList();
+
+        Set<Long> appliedProjectIds = candidateIds.isEmpty()
+                ? Set.of()
+                : applicationRepository.findAppliedProjectIds(
+                memberId,
+                candidateIds
+        );
+
         List<RecommendationCard> sortedCards = candidates.stream()
                 .map(project -> {
                     MatchResult match =
                             matchingService.calculate(profile, project);
 
-                    return RecommendationCard.from(project, match);
+                    return RecommendationCard.from(
+                            project,
+                            match,
+                            appliedProjectIds.contains(project.getId())
+                    );
                 })
                 .filter(card -> card.match().status() == status)
                 .sorted(comparator(status))
@@ -103,7 +123,7 @@ public class RecommendationService {
             content = List.of();
         } else {
             int start = (int) offset;
-            int end = (int) Math.min(offset + PAGE_SIZE, (long) total);
+            int end = (int) Math.min(offset + PAGE_SIZE, total);
             content = sortedCards.subList(start, end);
         }
 
