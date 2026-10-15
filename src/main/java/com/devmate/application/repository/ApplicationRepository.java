@@ -89,4 +89,10 @@ public interface ApplicationRepository
             @Param("applicantId") Long applicantId,
             @Param("projectIds") Collection<Long> projectIds
     );
+
+    /** 해당 회원이 조회자의 모집글에 지원한 이력이 있는지 확인한다. */
+    boolean existsByApplicant_IdAndProject_Author_Id(
+            Long applicantId,
+            Long authorId
+    );
 }
