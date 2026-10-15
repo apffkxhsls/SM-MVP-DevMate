@@ -183,6 +183,7 @@ class ProfileControllerTest {
                 .param("role", "BACKEND")
                 .param("weeklyHours", "10")
                 .param("availableSlots", "19", "20")
+                .param("skills", "JAVA")
                 .param("goal", "PORTFOLIO");
     }
 }
