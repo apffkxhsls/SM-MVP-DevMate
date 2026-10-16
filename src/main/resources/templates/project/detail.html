@@ -199,8 +199,8 @@
 
         <!-- 작성자이고 모집 중일 때만 마감 버튼 표시 -->
         <!-- isAuthor가 null일 때 SpEL 예외 방지: null == true → false로 안전하게 처리 -->
-        <form th:if="${project.recruiting and #authentication?.principal?.memberId == project.authorId}"
-            th:action="@{/projects/{id}/close(id=${project.id})}" method="post" style="margin-top: 24px;">
+        <form th:if="${project.recruiting and isAuthor}" th:action="@{/projects/{id}/close(id=${project.id})}"
+            method="post" style="margin-top: 24px;">
             <button type="submit" class="btn-close-recruitment">모집 마감하기</button>
         </form>
     </main>
