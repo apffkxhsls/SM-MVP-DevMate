@@ -170,6 +170,11 @@
     border-radius: 8px;
 }
 
+.applicant-item:hover {
+    border-color: #c7d2fe;
+    background-color: #f5f3ff;
+}
+
 .applicant-name {
     font-size: 14px;
     font-weight: 600;
@@ -288,6 +293,121 @@
     color: #6b7280;
     background-color: #f3f4f6;
 }
+
+/* ===== 프로필 팝업 ===== */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 32px 28px;
+    margin: 16px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #6b7280;
+    cursor: pointer;
+}
+
+.modal-title {
+    margin: 0 0 24px;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.modal-section {
+    margin-bottom: 20px;
+}
+
+.modal-section h3 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+#modalSkills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+
+/* 프로필 팝업 기술 태그 */
+.skill-tag {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.skill-required {
+    color: #4338ca;
+    background-color: #eef2ff;
+}
+
+.skill-preferred {
+    color: #15803d;
+    background-color: #dcfce7;
+}
+
+/* 프로필 팝업 시간표 */
+.profile-time-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    font-size: 12px;
+}
+
+.profile-time-table th {
+    padding: 8px 4px;
+    text-align: center;
+    color: #6b7280;
+    font-weight: 600;
+    background-color: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.profile-time-label {
+    color: #6b7280;
+    font-size: 12px;
+    padding: 4px 8px;
+    white-space: nowrap;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.profile-time-slot {
+    height: 32px;
+    background-color: #f3f4f6;
+    border: 0.5px solid #e5e7eb;
+    padding: 0;
+}
+
+.profile-time-slot--on {
+    background-color: #4f46e5;
+}
+
 
 /* ===== 모바일 ===== */
 @media (max-width: 600px) {

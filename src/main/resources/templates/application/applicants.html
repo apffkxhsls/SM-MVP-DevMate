@@ -51,8 +51,8 @@
 
         <!-- 지원자 목록 -->
         <ul class="applicant-list" th:if="${applicationPage.totalElements > 0}">
-            <li class="applicant-item" th:each="app : ${applicationPage.content}">
-                <!-- 지원자 이름 -->
+            <li class="applicant-item" th:each="app : ${applicationPage.content}" th:data-member-id="${app.applicantId}"
+                onclick="openProfileModal(this)">
                 <span class="applicant-name" th:text="${app.applicantName}">지원자 이름</span>
                 <!-- 상태 뱃지 -->
                 <span th:with="s=${app.status.name()}" th:class="${s == 'PENDING'} ? 'status-badge status-badge--pending'
@@ -80,7 +80,87 @@
             <a class="pagination-btn" th:if="${!applicationPage.last}"
                 th:href="@{/projects/{id}/applications(id=${projectId}, page=${applicationPage.number + 1})}">다음</a>
         </nav>
+
+        <!-- 지원자 프로필 팝업 -->
+        <div id="profileModal" class="modal-backdrop" style="display:none;">
+            <div class="modal">
+                <button class="modal-close" onclick="closeProfileModal()">✕</button>
+                <h2 class="modal-title" id="modalName">이름</h2>
+                <div class="modal-section">
+                    <h3>기술 스택</h3>
+                    <div id="modalSkills" class="skill-tag-list"></div>
+                </div>
+                <div class="modal-section">
+                    <h3>활동 가능 시간</h3>
+                    <p id="modalSlots"></p>
+                </div>
+            </div>
+        </div>
+
     </main>
+
+    <script>
+        // 기술 이름 한국어/영어 변환
+        const SKILL_NAMES = {
+            JAVA: 'Java', KOTLIN: 'Kotlin', PYTHON: 'Python',
+            JAVASCRIPT: 'JavaScript', SPRING_BOOT: 'Spring Boot', REACT: 'React'
+        };
+        const DAYS = ['월', '화', '수', '목', '금', '토', '일'];
+
+        function openProfileModal(li) {
+            const memberId = li.dataset.memberId;
+            fetch('/members/' + memberId + '/profile')
+                .then(function (res) {
+                    if (res.status === 403) throw new Error('조회 권한이 없습니다.');
+                    if (res.status === 404) throw new Error('프로필이 없습니다.');
+                    if (!res.ok) throw new Error('오류가 발생했습니다.');
+                    return res.json();
+                })
+                .then(function (data) {
+                    document.getElementById('modalName').textContent = data.name;
+
+                    // 기술 스택 태그
+                    const skillsEl = document.getElementById('modalSkills');
+                    skillsEl.innerHTML = data.skills.length > 0
+                        ? data.skills.map(function (s) {
+                            return '<span class="skill-tag skill-required">' + (SKILL_NAMES[s] || s) + '</span>';
+                        }).join('')
+                        : '<span style="color:#9ca3af;font-size:14px">등록된 기술 없음</span>';
+
+                    // 활동 시간 테이블 생성
+                    const slotSet = new Set(data.availableSlots);
+                    let table = '<table class="profile-time-table"><thead><tr><th></th>';
+                    DAYS.forEach(function (d) { table += '<th>' + d + '</th>'; });
+                    table += '</tr></thead><tbody>';
+                    for (let h = 0; h < 24; h++) {
+                        table += '<tr><td class="profile-time-label">' + String(h).padStart(2, '0') + ':00</td>';
+                        for (let d = 0; d < 7; d++) {
+                            const slot = d * 24 + h;
+                            table += slotSet.has(slot)
+                                ? '<td class="profile-time-slot profile-time-slot--on"></td>'
+                                : '<td class="profile-time-slot"></td>';
+                        }
+                        table += '</tr>';
+                    }
+                    table += '</tbody></table>';
+                    document.getElementById('modalSlots').innerHTML = table;
+
+                    document.getElementById('profileModal').style.display = 'flex';
+                })
+                .catch(function (err) { alert(err.message); });
+        }
+
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+
+        // 배경 클릭 시 팝업 닫기
+        document.getElementById('profileModal').addEventListener('click', function (e) {
+            if (e.target === this) closeProfileModal();
+        });
+    </script>
+
 </body>
 
 </html>
