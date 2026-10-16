@@ -66,6 +66,27 @@
     text-align: center;
 }
 
+/* 제목 + 지원 완료 뱃지 행 */
+.card-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+/* 지원 완료 뱃지 */
+.applied-badge {
+    flex-shrink: 0;
+    padding: 4px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    white-space: nowrap;
+    background-color: #f3f4f6;
+}
+
 /* ===== 페이지네이션 ===== */
 .pagination {
     display: flex;
