@@ -69,7 +69,7 @@
 /* 제목 + 지원 완료 뱃지 행 */
 .card-title-row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
 }
