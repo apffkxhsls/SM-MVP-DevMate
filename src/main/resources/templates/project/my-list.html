@@ -1,107 +1,102 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <link rel="stylesheet"
-          href="../../static/css/style.css"
-          th:href="@{/css/style.css}">
-    <link rel="stylesheet"
-          href="../../static/css/projects.css"
-          th:href="@{/css/projects.css}">
+    <link rel="stylesheet" href="../../static/css/style.css" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="../../static/css/projects.css" th:href="@{/css/projects.css}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>내 활동 | DevMate</title>
 </head>
+
 <body>
-<header class="site-header">
-    <nav class="nav-container" aria-label="주 메뉴">
-        <a class="logo" href="/projects" th:href="@{/projects}">DevMate</a>
-        <!-- 메뉴와 로그아웃 버튼을 가로로 묶는 래퍼 -->
-        <div class="nav-right">
-            <div class="nav-menu">
-                <a class="nav-link" href="/projects" th:href="@{/projects}">팀 찾기</a>
-                <a class="nav-link" href="/projects/new" th:href="@{/projects/new}">모집글 작성</a>
-                <a class="nav-link active"
-                   href="/my/applications"
-                   th:href="@{/my/applications}"
-                   aria-current="page">내 활동</a>
-                <a class="nav-link" href="/profile" th:href="@{/profile}">내 프로필</a>
+    <header class="site-header">
+        <nav class="nav-container" aria-label="주 메뉴">
+            <a class="logo" href="/projects" th:href="@{/projects}">DevMate</a>
+            <!-- 메뉴와 로그아웃 버튼을 가로로 묶는 래퍼 -->
+            <div class="nav-right">
+                <div class="nav-menu">
+                    <a class="nav-link" href="/projects" th:href="@{/projects}">팀 찾기</a>
+                    <a class="nav-link" href="/projects/new" th:href="@{/projects/new}">모집글 작성</a>
+                    <a class="nav-link active" href="/my/applications" th:href="@{/my/applications}"
+                        aria-current="page">내 활동</a>
+                    <a class="nav-link" href="/profile" th:href="@{/profile}">내 프로필</a>
+                </div>
+                <!-- CSRF 토큰은 th:action이 자동으로 추가 -->
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="nav-logout">로그아웃</button>
+                </form>
             </div>
-            <!-- CSRF 토큰은 th:action이 자동으로 추가 -->
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="nav-logout">로그아웃</button>
-            </form>
+        </nav>
+    </header>
+
+    <main class="page-content">
+        <h1 class="page-title">내 활동</h1>
+
+        <!-- 내 지원 / 내 모집글 탭 전환 -->
+        <div class="activity-tabs">
+            <a class="activity-tab" href="/my/applications" th:href="@{/my/applications}">내 지원</a>
+            <a class="activity-tab activity-tab--active" href="/my/projects" th:href="@{/my/projects}"
+                aria-current="page">내 모집글</a>
         </div>
-    </nav>
-</header>
 
-<main class="page-content">
-    <h1 class="page-title">내 활동</h1>
+        <!-- projectPage.content 목록에서 카드 하나씩 꺼내 반복 -->
+        <div class="my-project-list">
+            <div class="my-project-card" th:each="card : ${projectPage.content}">
+                <!-- 카드 상단: 상태 뱃지 · 제목 · 역할 · 마감일 -->
+                <div class="my-project-card__header">
+                    <!-- card.recruiting 으로 모집 중/마감 분기 -->
+                    <span
+                        th:class="${card.recruiting} ? 'status-badge status-badge--open' : 'status-badge status-badge--closed'"
+                        th:text="${card.recruiting} ? '모집 중' : '모집 마감'">모집 중</span>
+                    <!-- 모집글 제목 -->
+                    <h2 class="my-project-card__title" th:text="${card.title}">AI 기반 일정 관리 서비스</h2>
+                    <p class="my-project-card__meta">
+                        <!-- 역할 enum → 한국어 변환 -->
+                        <span th:switch="${card.role.name()}">
+                            <span th:case="'FRONTEND'">프론트엔드</span>
+                            <span th:case="'BACKEND'">백엔드</span>
+                            <span th:case="'ANDROID'">Android</span>
+                            <span th:case="'IOS'">iOS</span>
+                            <span th:case="'AI'">AI</span>
+                        </span>
+                        <span class="info-dot">·</span>
+                        <!-- 마감일 포맷: yyyy.MM.dd HH:mm -->
+                        <span th:text="'마감 ' + ${#temporals.format(card.deadline, 'yyyy.MM.dd HH:mm')}">마감
+                            2026.11.30</span>
+                    </p>
+                </div>
+                <!-- 지원자 관리 페이지로 이동하는 링크 -->
+                <div class="applicant-section">
+                    <a th:href="@{/projects/{id}/applications(id=${card.id})}" href="/projects/1/applications"
+                        class="btn-view-applicants">지원자 보기</a>
+                    <a th:href="@{/projects/{id}(id=${card.id})}" href="/projects/1" class="btn-view-applicants">상세
+                        보기</a>
 
-    <!-- 내 지원 / 내 모집글 탭 전환 -->
-    <div class="activity-tabs">
-        <a class="activity-tab"
-           href="/my/applications"
-           th:href="@{/my/applications}">내 지원</a>
-        <a class="activity-tab activity-tab--active"
-           href="/my/projects"
-           th:href="@{/my/projects}"
-           aria-current="page">내 모집글</a>
-    </div>
-
-    <!-- projectPage.content 목록에서 카드 하나씩 꺼내 반복 -->
-    <div class="my-project-list">
-        <div class="my-project-card" th:each="card : ${projectPage.content}">
-            <!-- 카드 상단: 상태 뱃지 · 제목 · 역할 · 마감일 -->
-            <div class="my-project-card__header">
-                <!-- card.recruiting 으로 모집 중/마감 분기 -->
-                <span th:class="${card.recruiting} ? 'status-badge status-badge--open' : 'status-badge status-badge--closed'"
-                      th:text="${card.recruiting} ? '모집 중' : '모집 마감'">모집 중</span>
-                <!-- 모집글 제목 -->
-                <h2 class="my-project-card__title" th:text="${card.title}">AI 기반 일정 관리 서비스</h2>
-                <p class="my-project-card__meta">
-                    <!-- 역할 enum → 한국어 변환 -->
-                    <span th:switch="${card.role.name()}">
-                        <span th:case="'FRONTEND'">프론트엔드</span>
-                        <span th:case="'BACKEND'">백엔드</span>
-                        <span th:case="'ANDROID'">Android</span>
-                        <span th:case="'IOS'">iOS</span>
-                        <span th:case="'AI'">AI</span>
-                    </span>
-                    <span class="info-dot">·</span>
-                    <!-- 마감일 포맷: yyyy.MM.dd HH:mm -->
-                    <span th:text="'마감 ' + ${#temporals.format(card.deadline, 'yyyy.MM.dd HH:mm')}">마감 2026.11.30</span>
-                </p>
-            </div>
-            <!-- 지원자 관리 페이지로 이동하는 링크 -->
-            <div class="applicant-section">
-            <a th:href="@{/projects/{id}/applications(id=${card.id})}"
-                href="/projects/1/applications"
-                class="btn-view-applicants">지원자 보기</a>
+                </div>
             </div>
         </div>
-    </div>
 
 
-    <!-- 모집글이 없을 때 안내 문구 -->
-    <p th:if="${projectPage.totalElements == 0}" class="empty-state">작성한 모집글이 없습니다.</p>
+        <!-- 모집글이 없을 때 안내 문구 -->
+        <p th:if="${projectPage.totalElements == 0}" class="empty-state">작성한 모집글이 없습니다.</p>
 
 
-    <!-- 페이지네이션 -->
-    <!-- 페이지가 2개 이상일 때만 페이지네이션 표시 -->
-    <nav class="pagination" th:if="${projectPage.totalPages > 1}" aria-label="페이지 이동">
-        <!-- 첫 페이지가 아닐 때만 이전 버튼 표시 -->
-        <a class="pagination-btn"
-        th:if="${!projectPage.first}"
-        th:href="@{/my/projects(page=${projectPage.number - 1})}">이전</a>
-        <!-- 현재 페이지 / 전체 페이지 -->
-        <span class="pagination-info"
-            th:text="${projectPage.number + 1} + ' / ' + ${projectPage.totalPages}">1 / 3</span>
-        <!-- 마지막 페이지가 아닐 때만 다음 버튼 표시 -->
-        <a class="pagination-btn"
-        th:if="${!projectPage.last}"
-        th:href="@{/my/projects(page=${projectPage.number + 1})}">다음</a>
-    </nav>
+        <!-- 페이지네이션 -->
+        <!-- 페이지가 2개 이상일 때만 페이지네이션 표시 -->
+        <nav class="pagination" th:if="${projectPage.totalPages > 1}" aria-label="페이지 이동">
+            <!-- 첫 페이지가 아닐 때만 이전 버튼 표시 -->
+            <a class="pagination-btn" th:if="${!projectPage.first}"
+                th:href="@{/my/projects(page=${projectPage.number - 1})}">이전</a>
+            <!-- 현재 페이지 / 전체 페이지 -->
+            <span class="pagination-info" th:text="${projectPage.number + 1} + ' / ' + ${projectPage.totalPages}">1 /
+                3</span>
+            <!-- 마지막 페이지가 아닐 때만 다음 버튼 표시 -->
+            <a class="pagination-btn" th:if="${!projectPage.last}"
+                th:href="@{/my/projects(page=${projectPage.number + 1})}">다음</a>
+        </nav>
 
-</main>
+    </main>
 </body>
+
 </html>
