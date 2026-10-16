@@ -45,8 +45,9 @@
                 <span class="status-badge" th:classappend="${project.recruiting} ? 'status-open' : 'status-closed'"
                     th:text="${project.recruiting} ? '모집 중' : '모집 마감'">모집 중</span>
             </div>
-            <!-- 뒤로가기 오른쪽 -->
-            <a href="javascript:history.back()" class="back-link">이전 페이지로 돌아가기</a>
+            <!-- successMessage 있으면 팀 찾기로, 없으면 이전 페이지로 -->
+            <a th:if="${successMessage}" th:href="@{/projects}" href="/projects" class="back-link">팀 찾기로 돌아가기</a>
+            <a th:if="${successMessage == null}" href="javascript:history.back()" class="back-link">이전 페이지로 돌아가기</a>
         </div>
 
 
