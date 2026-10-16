@@ -4,11 +4,14 @@ import com.devmate.member.security.MemberUserDetailsService;
 import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 @Configuration
 public class SecurityConfig {
@@ -46,6 +49,22 @@ public class SecurityConfig {
                         .defaultSuccessUrl("/projects", true)
                         .failureUrl("/login?error")
                         .permitAll()
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            boolean applicantProfileApi =
+                                    "GET".equals(request.getMethod())
+                                            && request.getServletPath()
+                                            .matches("/members/[^/]+/profile");
+
+                            if (applicantProfileApi) {
+                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
+                                        .commence(request, response, authException);
+                            } else {
+                                new LoginUrlAuthenticationEntryPoint("/login")
+                                        .commence(request, response, authException);
+                            }
+                        })
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login?logout")
