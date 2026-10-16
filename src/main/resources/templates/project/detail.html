@@ -18,12 +18,17 @@
 <header class="site-header">
     <nav class="nav-container" aria-label="주 메뉴">
         <a class="logo" href="/projects" th:href="@{/projects}">DevMate</a>
-        <div class="nav-menu">
-            <a class="nav-link" href="/projects" th:href="@{/projects}">팀 찾기</a>
-            <a class="nav-link" href="/projects/new" th:href="@{/projects/new}">모집글 작성</a>
-            <a class="nav-link" href="/my/applications" th:href="@{/my/applications}">내 활동</a>
-            <a class="nav-link" href="/profile" th:href="@{/profile}">내 프로필</a>
-        </div>
+        <div class="nav-right">
+            <div class="nav-menu">
+                <a class="nav-link" href="/projects" th:href="@{/projects}">팀 찾기</a>
+                <a class="nav-link" href="/projects/new" th:href="@{/projects/new}">모집글 작성</a>
+                <a class="nav-link" href="/my/applications" th:href="@{/my/applications}">내 활동</a>
+                <a class="nav-link" href="/profile" th:href="@{/profile}">내 프로필</a>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="nav-logout">로그아웃</button>
+            </form>
+        </div>  
     </nav>
 </header>
 
@@ -34,6 +39,11 @@
         <span th:text="${successMessage}">모집글이 등록되었습니다.</span>
         <a href="/projects" th:href="@{/projects}" class="btn-projects">팀 찾기로 돌아가기</a>
     </div>
+
+    <div th:if="${errorMessage}" class="error-banner" role="alert">
+        <span th:text="${errorMessage}">오류 메시지</span>
+    </div>
+
 
     <!-- 제목 + 모집 중/마감 상태 뱃지 -->
     <div class="detail-header">
@@ -189,6 +199,20 @@
             </time>
         </div>
     </section>
+
+    <!-- ===== 지원 버튼 ===== -->
+    <!-- 모집 중 상태 + 지원하지 않은 상태 + 작성자 본인이 아닐 때만 지원하기 버튼 표시 -->
+    <form th:if="${project.recruiting and !applied and !isAuthor}"
+        th:action="@{/projects/{id}/applications(id=${project.id})}"
+        method="post">
+        <button type="submit" class="apply-btn">지원하기</button>
+    </form>
+
+    <!-- ===== 돌아가기 버튼 ===== -->
+    <a href="/projects" th:href="@{/projects}" class="back-link">
+    팀 찾기로 돌아가기
+    </a>
+
 </main>
 
 <!--

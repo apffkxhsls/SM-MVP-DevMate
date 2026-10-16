@@ -235,6 +235,38 @@
     background-color: #4f46e5;
     border-color: #4f46e5;
 }
+/* ===== 지원하기 버튼 ===== */
+.apply-btn {
+    display: block;
+    width: 100%;
+    padding: 14px 16px;
+    margin-top: 32px;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    color: #ffffff;
+    background-color: #4f46e5;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.apply-btn:hover {
+    background-color: #4338ca;
+}
+
+/* 지원 오류 메시지 */
+.error-banner {
+    margin-bottom: 24px;
+    padding: 14px 16px;
+    color: #991b1b;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
 
 /* ===== 팀 찾기 돌아가기 버튼 ===== */
 .btn-projects {
