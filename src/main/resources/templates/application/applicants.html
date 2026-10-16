@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <link rel="stylesheet" href="../../static/css/style.css" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="../../static/css/projects.css" th:href="@{/css/projects.css}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>지원자 목록 | DevMate</title>
+</head>
+
+<body>
+    <header class="site-header">
+        <nav class="nav-container" aria-label="주 메뉴">
+            <a class="logo" href="/projects" th:href="@{/projects}">DevMate</a>
+            <!-- 메뉴와 로그아웃 버튼을 가로로 묶는 래퍼 -->
+            <div class="nav-right">
+                <div class="nav-menu">
+                    <a class="nav-link" href="/projects" th:href="@{/projects}">팀 찾기</a>
+                    <a class="nav-link" href="/projects/new" th:href="@{/projects/new}">모집글 작성</a>
+                    <a class="nav-link active" href="/my/applications" th:href="@{/my/applications}"
+                        aria-current="page">내 활동</a>
+                    <a class="nav-link" href="/profile" th:href="@{/profile}">내 프로필</a>
+                </div>
+                <!-- CSRF 토큰은 th:action이 자동으로 추가 -->
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="nav-logout">로그아웃</button>
+                </form>
+            </div>
+        </nav>
+    </header>
+
+    <main class="page-content">
+        <!-- 수락/거절 처리 후 플래시 메시지 -->
+        <div th:if="${successMessage}" class="success-banner" role="status">
+            <span th:text="${successMessage}">지원자를 수락했습니다.</span>
+        </div>
+        <div th:if="${errorMessage}" class="error-banner" role="alert">
+            <span th:text="${errorMessage}">오류 메시지</span>
+        </div>
+
+        <!-- 제목 + 돌아가기 버튼 -->
+        <div class="page-header">
+            <h1 class="page-title">지원자 목록</h1>
+            <a href="/my/projects" th:href="@{/my/projects}" class="back-link">내 모집글로 돌아가기</a>
+        </div>
+
+
+        <!-- 지원자 없을 때 -->
+        <p th:if="${applicationPage.totalElements == 0}" class="empty-state">아직 지원자가 없습니다.</p>
+
+        <!-- 지원자 목록 -->
+        <ul class="applicant-list" th:if="${applicationPage.totalElements > 0}">
+            <li class="applicant-item" th:each="app : ${applicationPage.content}" th:data-member-id="${app.applicantId}"
+                onclick="openProfileModal(this)">
+                <span class="applicant-name" th:text="${app.applicantName}">지원자 이름</span>
+                <!-- 상태 뱃지 -->
+                <span th:with="s=${app.status.name()}" th:class="${s == 'PENDING'} ? 'status-badge status-badge--pending'
+                      : (${s == 'ACCEPTED'} ? 'status-badge status-badge--accepted'
+                      : 'status-badge status-badge--rejected')"
+                    th:text="${s == 'PENDING'} ? '대기중' : (${s == 'ACCEPTED'} ? '수락' : '거절')">상태</span>
+                <!-- 대기 중일 때만 수락/거절 버튼 표시 -->
+                <div class="applicant-actions" th:if="${app.status.name() == 'PENDING'}">
+                    <form th:action="@{/applications/{id}/accept(id=${app.applicationId})}" method="post">
+                        <button type="submit" class="btn-accept">수락</button>
+                    </form>
+                    <form th:action="@{/applications/{id}/reject(id=${app.applicationId})}" method="post">
+                        <button type="submit" class="btn-reject">거절</button>
+                    </form>
+                </div>
+            </li>
+        </ul>
+
+        <!-- 페이지가 2개 이상일 때만 페이지네이션 표시 -->
+        <nav class="pagination" th:if="${applicationPage.totalPages > 1}" aria-label="페이지 이동">
+            <a class="pagination-btn" th:if="${!applicationPage.first}"
+                th:href="@{/projects/{id}/applications(id=${projectId}, page=${applicationPage.number - 1})}">이전</a>
+            <span class="pagination-info"
+                th:text="${applicationPage.number + 1} + ' / ' + ${applicationPage.totalPages}">1 / 3</span>
+            <a class="pagination-btn" th:if="${!applicationPage.last}"
+                th:href="@{/projects/{id}/applications(id=${projectId}, page=${applicationPage.number + 1})}">다음</a>
+        </nav>
+
+        <!-- 지원자 프로필 팝업 -->
+        <div id="profileModal" class="modal-backdrop" style="display:none;">
+            <div class="modal">
+                <button class="modal-close" onclick="closeProfileModal()">✕</button>
+                <h2 class="modal-title" id="modalName">이름</h2>
+                <div class="modal-section">
+                    <h3>기술 스택</h3>
+                    <div id="modalSkills" class="skill-tag-list"></div>
+                </div>
+                <div class="modal-section">
+                    <h3>활동 가능 시간</h3>
+                    <p id="modalSlots"></p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // 기술 이름 한국어/영어 변환
+        const SKILL_NAMES = {
+            JAVA: 'Java', KOTLIN: 'Kotlin', PYTHON: 'Python',
+            JAVASCRIPT: 'JavaScript', SPRING_BOOT: 'Spring Boot', REACT: 'React'
+        };
+        const DAYS = ['월', '화', '수', '목', '금', '토', '일'];
+
+        function openProfileModal(li) {
+            const memberId = li.dataset.memberId;
+            fetch('/members/' + memberId + '/profile')
+                .then(function (res) {
+                    if (res.status === 403) throw new Error('조회 권한이 없습니다.');
+                    if (res.status === 404) throw new Error('프로필이 없습니다.');
+                    if (!res.ok) throw new Error('오류가 발생했습니다.');
+                    return res.json();
+                })
+                .then(function (data) {
+                    document.getElementById('modalName').textContent = data.name;
+
+                    // 기술 스택 태그
+                    const skillsEl = document.getElementById('modalSkills');
+                    skillsEl.innerHTML = data.skills.length > 0
+                        ? data.skills.map(function (s) {
+                            return '<span class="skill-tag skill-required">' + (SKILL_NAMES[s] || s) + '</span>';
+                        }).join('')
+                        : '<span style="color:#9ca3af;font-size:14px">등록된 기술 없음</span>';
+
+                    // 활동 시간 테이블 생성
+                    const slotSet = new Set(data.availableSlots);
+                    let table = '<table class="profile-time-table"><thead><tr><th></th>';
+                    DAYS.forEach(function (d) { table += '<th>' + d + '</th>'; });
+                    table += '</tr></thead><tbody>';
+                    for (let h = 0; h < 24; h++) {
+                        table += '<tr><td class="profile-time-label">' + String(h).padStart(2, '0') + ':00</td>';
+                        for (let d = 0; d < 7; d++) {
+                            const slot = d * 24 + h;
+                            table += slotSet.has(slot)
+                                ? '<td class="profile-time-slot profile-time-slot--on"></td>'
+                                : '<td class="profile-time-slot"></td>';
+                        }
+                        table += '</tr>';
+                    }
+                    table += '</tbody></table>';
+                    document.getElementById('modalSlots').innerHTML = table;
+
+                    document.getElementById('profileModal').style.display = 'flex';
+                })
+                .catch(function (err) { alert(err.message); });
+        }
+
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+
+        // 배경 클릭 시 팝업 닫기
+        document.getElementById('profileModal').addEventListener('click', function (e) {
+            if (e.target === this) closeProfileModal();
+        });
+    </script>
+
+</body>
+
+</html>
