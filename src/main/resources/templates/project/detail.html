@@ -12,24 +12,42 @@
 
 <body>
 
+<<<<<<< HEAD
     <!-- 공통 상단 네비게이션 (style.css) -->
     <header class="site-header">
         <nav class="nav-container" aria-label="주 메뉴">
             <a class="logo" href="/projects" th:href="@{/projects}">DevMate</a>
+=======
+<!-- 공통 상단 네비게이션 (style.css) -->
+<header class="site-header">
+    <nav class="nav-container" aria-label="주 메뉴">
+        <a class="logo" href="/projects" th:href="@{/projects}">DevMate</a>
+        <div class="nav-right">
+>>>>>>> 114be0d ([feat/#43] 모집글 상세 페이지 로그아웃 버튼 추가)
             <div class="nav-menu">
                 <a class="nav-link" href="/projects" th:href="@{/projects}">팀 찾기</a>
                 <a class="nav-link" href="/projects/new" th:href="@{/projects/new}">모집글 작성</a>
                 <a class="nav-link" href="/my/applications" th:href="@{/my/applications}">내 활동</a>
                 <a class="nav-link" href="/profile" th:href="@{/profile}">내 프로필</a>
             </div>
-        </nav>
-    </header>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="nav-logout">로그아웃</button>
+            </form>
+        </div>  
+    </nav>
+</header>
+>>>>>>> 114be0d ([feat/#43] 모집글 상세 페이지 로그아웃 버튼 추가)
 
     <main class="page-content project-detail-page">
 
         <!-- 모집글 등록 성공 시 플래시 메시지 (ProjectController → RedirectAttributes) -->
         <div th:if="${successMessage}" class="success-banner" role="status">
             <span th:text="${successMessage}">모집글이 등록되었습니다.</span>
+        </div>
+
+        <!-- 지원 오류 발생 시 오류 메시지 표시 -->
+        <div th:if="${errorMessage}" class="error-banner" role="alert">
+            <span th:text="${errorMessage}">오류 메시지</span>
         </div>
 
         <!-- 이미 마감된 경우 안내 메시지 -->
@@ -202,6 +220,12 @@
         <form th:if="${project.recruiting and isAuthor}" th:action="@{/projects/{id}/close(id=${project.id})}"
             method="post" style="margin-top: 24px;">
             <button type="submit" class="btn-close-recruitment">모집 마감하기</button>
+        </form>
+
+        <!-- 모집 중이고, 지원하지 않았고, 작성자 본인이 아닐 때만 표시 -->
+        <form th:if="${project.recruiting and !applied and !isAuthor}"
+            th:action="@{/projects/{id}/applications(id=${project.id})}" method="post">
+            <button type="submit" class="apply-btn">지원하기</button>
         </form>
     </main>
 
