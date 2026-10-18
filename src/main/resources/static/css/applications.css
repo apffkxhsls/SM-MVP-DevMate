@@ -173,3 +173,15 @@
         padding: 8px 16px;
     }
 }
+
+/* ===== 지원 성공 배너 ===== */
+.success-banner {
+    margin-bottom: 24px;
+    padding: 14px 16px;
+    color: #15803d;
+    background-color: #dcfce7;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}

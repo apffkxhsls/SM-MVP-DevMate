@@ -30,7 +30,11 @@
 
     <main class="page-content">
         <h1 class="page-title">내 활동</h1>
-
+        <!-- 지원 성공 시 백엔드에서 전달하는 successMessage 표시 -->
+        <div th:if="${successMessage}" class="success-banner">
+            <span th:text="${successMessage}"></span>
+        </div>
+>>>>>>> c529362 ([feat/#43] 지원 성공 메시지 배너 추가)
         <!-- 내 지원 / 내 모집글 탭 전환 -->
         <div class="activity-tabs">
             <a class="activity-tab activity-tab--active" href="/my/applications" th:href="@{/my/applications}"
@@ -49,11 +53,10 @@
             <!-- applicationPage.content 목록에서 카드 하나씩 꺼내 반복 -->
             <div class="application-card" th:each="card : ${applicationPage.content}">
                 <div class="application-card__left">
-                    <!-- 프로젝트 제목 -->
-                    <span  class="my-project-card__title" th:text="${card.projectTitle}">프로젝트 제목</span>
-
+                    <h2 class="application-card__title" th:text="${card.projectTitle}">프로젝트 제목</h2>
                     <p class="application-card__info">
-                        <span th:text="'지원 ' + ${#temporals.format(card.createdAt, 'yyyy.MM.dd')}">지원일</span>
+                        <span th:text="${#temporals.format(card.createdAt, 'yyyy.MM.dd')}">지원일</span>
+>>>>>>> c529362 ([feat/#43] 지원 성공 메시지 배너 추가)
                     </p>
                 </div>
                 <div class="application-card__right">
