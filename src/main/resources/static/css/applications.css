@@ -1,0 +1,175 @@
+/* ===== 내 지원 / 내 모집글 탭 ===== */
+.activity-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.activity-tab {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    color: #6b7280;
+    /* 탭 하단 테두리로 활성 상태 표시 */
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+
+.activity-tab:hover {
+    color: #4f46e5;
+}
+
+/* 현재 선택된 탭 */
+.activity-tab--active {
+    color: #4f46e5;
+    border-bottom-color: #4f46e5;
+}
+
+/* ===== 지원 카드 목록 — 단일 컬럼 ===== */
+.application-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ===== 개별 지원 카드 ===== */
+.application-card {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+/* 왼쪽: 제목 + 정보 */
+.application-card__left {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px 24px;
+}
+
+.application-card__title {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.4;
+}
+
+/* 모집 분야 · 마감일 · 지원일 한 줄 표시 */
+.application-card__info {
+    margin: 0;
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+/* 항목 구분자 */
+.info-dot {
+    margin: 0 4px;
+    color: #d1d5db;
+}
+
+/* 오른쪽: 상태 뱃지 + 상세 보기 버튼 */
+.application-card__right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+    width: 160px;
+    padding: 24px 20px;
+    /* 왼쪽 영역과 구분선 */
+    border-left: 1px solid #e5e7eb;
+}
+
+/* ===== 상태 뱃지 ===== */
+.status-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* 대기중 */
+.status-badge--pending {
+    color: #92400e;
+    background-color: #fef3c7;
+}
+
+/* 수락 */
+.status-badge--accepted {
+    color: #166534;
+    background-color: #f0fdf4;
+}
+
+/* 거절 */
+.status-badge--rejected {
+    color: #991b1b;
+    background-color: #fef2f2;
+}
+
+/* 모집 종료 */
+.status-badge--closed {
+    color: #6b7280;
+    background-color: #f3f4f6;
+}
+
+/* ===== 상세 보기 버튼 ===== */
+.application-detail-link {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    color: #4f46e5;
+    background-color: #eef2ff;
+    border: 1px solid #c7d2fe;
+    border-radius: 8px;
+}
+
+.application-detail-link:hover {
+    background-color: #e0e7ff;
+}
+
+/* ===== 지원 내역 없을 때 ===== */
+.empty-state {
+    padding: 48px 0;
+    color: #9ca3af;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* ===== 모바일: 오른쪽 패널을 하단으로 이동 ===== */
+@media (max-width: 600px) {
+    .application-card {
+        flex-direction: column;
+    }
+
+    .application-card__right {
+        flex-direction: row;
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid #e5e7eb;
+        padding: 12px 16px;
+    }
+
+    .application-detail-link {
+        width: auto;
+        padding: 8px 16px;
+    }
+}
