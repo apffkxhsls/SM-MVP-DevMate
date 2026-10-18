@@ -51,20 +51,27 @@
 
         <!-- 지원자 목록 -->
         <ul class="applicant-list" th:if="${applicationPage.totalElements > 0}">
-            <li class="applicant-item" th:each="app : ${applicationPage.content}" th:data-member-id="${app.applicantId}"
-                onclick="openProfileModal(this)">
+            <li class="applicant-item" th:each="app : ${applicationPage.content}">
+                <!-- 지원자 이름 -->
                 <span class="applicant-name" th:text="${app.applicantName}">지원자 이름</span>
                 <!-- 상태 뱃지 -->
                 <span th:with="s=${app.status.name()}" th:class="${s == 'PENDING'} ? 'status-badge status-badge--pending'
                       : (${s == 'ACCEPTED'} ? 'status-badge status-badge--accepted'
                       : 'status-badge status-badge--rejected')"
                     th:text="${s == 'PENDING'} ? '대기중' : (${s == 'ACCEPTED'} ? '수락' : '거절')">상태</span>
-                <!-- 대기 중일 때만 수락/거절 버튼 표시 -->
-                <div class="applicant-actions" th:if="${app.status.name() == 'PENDING'}">
-                    <form th:action="@{/applications/{id}/accept(id=${app.applicationId})}" method="post">
+                <!-- 프로필 보기 + 수락/거절 버튼 -->
+                <div class="applicant-actions">
+                    <!-- 프로필 보기 버튼: 클릭 시 팝업 표시 -->
+                    <button type="button" class="btn-profile"
+                        th:data-member-id="${app.applicantId}"
+                        onclick="openProfileModal(this)">프로필 보기</button>
+                    <!-- 대기 중일 때만 수락/거절 버튼 표시 -->
+                    <form th:if="${app.status.name() == 'PENDING'}"
+                        th:action="@{/applications/{id}/accept(id=${app.applicationId})}" method="post">
                         <button type="submit" class="btn-accept">수락</button>
                     </form>
-                    <form th:action="@{/applications/{id}/reject(id=${app.applicationId})}" method="post">
+                    <form th:if="${app.status.name() == 'PENDING'}"
+                        th:action="@{/applications/{id}/reject(id=${app.applicationId})}" method="post">
                         <button type="submit" class="btn-reject">거절</button>
                     </form>
                 </div>

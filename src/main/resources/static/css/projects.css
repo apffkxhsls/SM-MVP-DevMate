@@ -170,11 +170,6 @@
     border-radius: 8px;
 }
 
-.applicant-item:hover {
-    border-color: #c7d2fe;
-    background-color: #f5f3ff;
-}
-
 .applicant-name {
     font-size: 14px;
     font-weight: 600;
@@ -184,6 +179,23 @@
 .applicant-actions {
     display: flex;
     gap: 8px;
+}
+
+/* 프로필 보기 버튼 */
+.btn-profile {
+    padding: 6px 14px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4338ca;
+    background-color: #eef2ff;
+    border: 1px solid #c7d2fe;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-profile:hover {
+    background-color: #e0e7ff;
 }
 
 /* 수락 버튼 */
