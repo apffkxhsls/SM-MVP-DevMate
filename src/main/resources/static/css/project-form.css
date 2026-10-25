@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;600;700&display=swap');
+
 * {
     box-sizing: border-box;
 }
@@ -5,7 +7,8 @@
 body {
     margin: 0;
     padding: 40px 20px;
-    font-family: "맑은 고딕", sans-serif;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
     color: #1f2937;
     background-color: #f5f7fa;
 }
@@ -74,8 +77,8 @@ body {
 }
 
 .cancel-btn:hover {
-    border-color: #4f46e5;
-    color: #4f46e5;
+    border-color: #4f6ef7;
+    color: #4f6ef7;
 }
 
 .project-form legend + * {
@@ -209,12 +212,12 @@ p.field-error:empty {
     width: 16px;
     height: 16px;
     margin: 0;
-    accent-color: #4f46e5;
+    accent-color: #4f6ef7;
 }
 
 /* 추후 JavaScript에서 선택 상태에 따라 적용 */
 .skill-options label:has(input:checked) {
-    color: #4338ca;
+    color: #3a58e0;
     background-color: #eef2ff;
 }
 
@@ -241,7 +244,7 @@ select:disabled {
     padding: 14px 20px;
     color: #ffffff;
     font-weight: 700;
-    background-color: #4f46e5;
+    background-color: #4f6ef7;
     border: none;
     border-radius: 10px;
     cursor: pointer;
@@ -346,13 +349,13 @@ select:disabled {
 }
 
 .time-slot:hover .time-slot-mark {
-    border-color: #4f46e5;
+    border-color: #4f6ef7;
 }
 
 .time-slot input:checked + .time-slot-mark {
     color: #ffffff;
-    background-color: #4f46e5;
-    border-color: #4f46e5;
+    background-color: #4f6ef7;
+    border-color: #4f6ef7;
 }
 
 .time-slot input:focus-visible + .time-slot-mark {
@@ -366,6 +369,6 @@ select:disabled {
 }
 
 #selectedTimeCount {
-    color: #4f46e5;
+    color: #4f6ef7;
     font-weight: 600;
 }

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;600;700&display=swap');
+
 * {
     box-sizing: border-box;
 }
@@ -5,7 +7,8 @@
 body {
     margin: 0;
     padding: 40px 20px;
-    font-family: "맑은 고딕", sans-serif;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
     color: #1f2937;
     background-color: #f5f7fa;
 }
@@ -41,8 +44,8 @@ h1 {
 }
 
 .back-link:hover {
-    border-color: #4f46e5;
-    color: #4f46e5;
+    border-color: #4f6ef7;
+    color: #4f6ef7;
 }
 
 .profile-page > p {
@@ -183,7 +186,7 @@ button:focus-visible {
     width: 16px;
     height: 16px;
     margin: 0;
-    accent-color: #4f46e5;
+    accent-color: #4f6ef7;
 }
 
 /* 저장 버튼 */
@@ -192,7 +195,7 @@ button:focus-visible {
     padding: 14px 20px;
     color: #ffffff;
     font-weight: 700;
-    background-color: #4f46e5;
+    background-color: #4f6ef7;
     border: none;
     border-radius: 10px;
     cursor: pointer;
@@ -297,13 +300,13 @@ button:focus-visible {
 }
 
 .time-slot:hover .time-slot-mark {
-    border-color: #4f46e5;
+    border-color: #4f6ef7;
 }
 
 .time-slot input:checked + .time-slot-mark {
     color: #ffffff;
-    background-color: #4f46e5;
-    border-color: #4f46e5;
+    background-color: #4f6ef7;
+    border-color: #4f6ef7;
 }
 
 .time-slot input:focus-visible + .time-slot-mark {
@@ -317,7 +320,7 @@ button:focus-visible {
 }
 
 #selectedTimeCount {
-    color: #4f46e5;
+    color: #4f6ef7;
     font-weight: 600;
     font-size: 16px;
 }
@@ -361,7 +364,7 @@ p.field-error:empty {
 /* 저장 완료 후 팀 찾기로 이동 버튼 */
 .btn-projects {
     padding: 8px 16px;
-    background-color: #4f46e5;
+    background-color: #4f6ef7;
     color: #ffffff;
     font-size: 14px;
     text-decoration: none;
@@ -370,5 +373,5 @@ p.field-error:empty {
 }
 
 .btn-projects:hover {
-    background-color: #4338ca;
+    background-color: #3a58e0;
 }
