@@ -176,6 +176,10 @@
     color: #1f2937;
 }
 
+.applicant-item .status-badge {
+    align-self: center;
+}
+
 .applicant-actions {
     display: flex;
     gap: 8px;
