@@ -165,7 +165,7 @@
                     if (data.portfolioUrl) {
                         portfolioEl.innerHTML = '<a href="' + data.portfolioUrl + '" target="_blank">' + data.portfolioUrl + '</a>';
                     } else {
-                        portfolioEl.textContent = '미등록';
+                        portfolioEl.textContent = '아직 입력하지 않은 항목입니다.';
                         portfolioEl.style.color = '#9ca3af';
                     }
 
@@ -175,7 +175,7 @@
                         introEl.textContent = data.introduction;
                         introEl.style.color = '';
                     } else {
-                        introEl.textContent = '미등록';
+                        introEl.textContent = '아직 입력하지 않은 항목입니다.';
                         introEl.style.color = '#9ca3af';
                     }
 
