@@ -7,7 +7,9 @@ import java.util.List;
 public record ApplicantProfileView(
         String name,
         List<String> skills,
-        List<Integer> availableSlots
+        List<Integer> availableSlots,
+        String portfolioUrl,
+        String introduction
 ) {
 
     public static ApplicantProfileView from(Profile profile) {
@@ -19,7 +21,9 @@ public record ApplicantProfileView(
                         .toList(),
                 profile.getAvailableSlots().stream()
                         .sorted()
-                        .toList()
+                        .toList(),
+                profile.getPortfolioUrl(),
+                profile.getIntroduction()
         );
     }
 }
