@@ -333,6 +333,19 @@
     overflow-y: auto;
 }
 
+#modalPortfolio a {
+    color: #4f6ef7;
+    text-decoration: none;
+}
+
+#modalPortfolio a:hover {
+    text-decoration: underline;
+}
+
+#modalPortfolio a:visited {
+    color: #9b72e8;
+}
+
 .modal-close {
     position: absolute;
     top: 16px;
