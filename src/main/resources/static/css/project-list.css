@@ -46,15 +46,15 @@
 
 /* 선택된 탭 */
 .status-tab--active {
-    color: #4f46e5;
+    color: #4f6ef7;
     background-color: #eef2ff;
-    border-color: #c7d2fe;
+    border-color: #c0d0fe;
 }
 /* 탭 hover */
 .status-tab:hover {
-    color: #4f46e5;
+    color: #4f6ef7;
     background-color: #eef2ff;
-    border-color: #c7d2fe;
+    border-color: #c0d0fe;
 }
 
 /* ===== 결과 없음 ===== */
@@ -85,36 +85,6 @@
     color: #6b7280;
     white-space: nowrap;
     background-color: #f3f4f6;
-}
-
-/* ===== 페이지네이션 ===== */
-.pagination {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 32px;
-}
-
-.pagination-btn {
-    padding: 8px 20px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    color: #4f46e5;
-    background-color: #eef2ff;
-    border: 1px solid #c7d2fe;
-}
-
-.pagination-btn:hover {
-    background-color: #e0e7ff;
-}
-
-.pagination-info {
-    font-size: 14px;
-    font-weight: 600;
-    color: #6b7280;
 }
 
 

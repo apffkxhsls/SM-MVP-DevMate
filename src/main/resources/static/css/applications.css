@@ -18,13 +18,13 @@
 }
 
 .activity-tab:hover {
-    color: #4f46e5;
+    color: #4f6ef7;
 }
 
 /* 현재 선택된 탭 */
 .activity-tab--active {
-    color: #4f46e5;
-    border-bottom-color: #4f46e5;
+    color: #4f6ef7;
+    border-bottom-color: #4f6ef7;
 }
 
 /* ===== 지원 카드 목록 — 단일 컬럼 ===== */
@@ -135,7 +135,7 @@
     font-weight: 600;
     text-align: center;
     text-decoration: none;
-    color: #4f46e5;
+    color: #4f6ef7;
     background-color: #eef2ff;
     border: 1px solid #c7d2fe;
     border-radius: 8px;

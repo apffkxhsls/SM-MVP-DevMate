@@ -101,6 +101,14 @@
                     <h3>활동 가능 시간</h3>
                     <p id="modalSlots"></p>
                 </div>
+                <div class="modal-section">
+                    <h3>포트폴리오 링크</h3>
+                    <p id="modalPortfolio"></p>
+                </div>
+                <div class="modal-section">
+                    <h3>자기소개</h3>
+                    <p id="modalIntro"></p>
+                </div>
             </div>
         </div>
 
@@ -151,6 +159,31 @@
                     }
                     table += '</tbody></table>';
                     document.getElementById('modalSlots').innerHTML = table;
+
+                    // 포트폴리오 링크
+                    const portfolioEl = document.getElementById('modalPortfolio');
+                    if (data.portfolioUrl) {
+                        const link = document.createElement('a');
+                        link.href = data.portfolioUrl;
+                        link.textContent = data.portfolioUrl;
+                        link.target = '_blank';
+                        link.rel = 'noopener noreferrer';
+                        portfolioEl.replaceChildren(link);
+                        portfolioEl.style.color = '';
+                    } else {
+                        portfolioEl.textContent = '아직 입력하지 않은 항목입니다.';
+                        portfolioEl.style.color = '#9ca3af';
+                    }
+
+                    // 자기소개
+                    const introEl = document.getElementById('modalIntro');
+                    if (data.introduction) {
+                        introEl.textContent = data.introduction;
+                        introEl.style.color = '';
+                    } else {
+                        introEl.textContent = '아직 입력하지 않은 항목입니다.';
+                        introEl.style.color = '#9ca3af';
+                    }
 
                     document.getElementById('profileModal').style.display = 'flex';
                 })
