@@ -163,7 +163,13 @@
                     // 포트폴리오 링크
                     const portfolioEl = document.getElementById('modalPortfolio');
                     if (data.portfolioUrl) {
-                        portfolioEl.innerHTML = '<a href="' + data.portfolioUrl + '" target="_blank">' + data.portfolioUrl + '</a>';
+                        const link = document.createElement('a');
+                        link.href = data.portfolioUrl;
+                        link.textContent = data.portfolioUrl;
+                        link.target = '_blank';
+                        link.rel = 'noopener noreferrer';
+                        portfolioEl.replaceChildren(link);
+                        portfolioEl.style.color = '';
                     } else {
                         portfolioEl.textContent = '아직 입력하지 않은 항목입니다.';
                         portfolioEl.style.color = '#9ca3af';
